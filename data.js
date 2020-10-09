@@ -62,7 +62,7 @@ async function getProperties(filename) {
         .map((line, _) => {
             const obj = {};
             for (const [i, p] of line.split('\t').entries()) {
-                obj[dbSchema[filename][i]] = p.trim();
+                obj[dbSchema[filename][i]] = p.trim() || null;
             };
             return obj;
         });
