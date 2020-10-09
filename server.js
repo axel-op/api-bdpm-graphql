@@ -24,15 +24,15 @@ var schema = buildSchema(`
     }
 
     type Query {
-        medicaments: [Medicament]!
+        medicaments(codes_CIS: [ID]): [Medicament]!
     }
 `);
 
 // The root provides the top-level API endpoints
 var root = {
-    medicaments: async () => {
+    medicaments: async ({ codes_CIS }) => {
         const p = await data.getProperties('CIS_bdpm');
-        return p;
+        return p.filter(o => codes_CIS.includes(o['code_CIS']));
     }
 }
 
