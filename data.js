@@ -43,12 +43,15 @@ function readFile(filename) {
 
 async function getProperties(filename) {
     let content = await readFile(filename);
-    content = content.split(/\r?\n/);
-    return content.map((line, _) => {
-        const obj = {};
-        for (const [i, p] of line.split('\t').entries()) {
-            obj[dbSchema[filename][i]] = p;
-        };
-        return obj;
-    });
+    content = content
+        .split(/\r?\n/)
+        .filter(line => line)
+        .map((line, _) => {
+            const obj = {};
+            for (const [i, p] of line.split('\t').entries()) {
+                obj[dbSchema[filename][i]] = p.trim();
+            };
+            return obj;
+        });
+    return content;
 };
