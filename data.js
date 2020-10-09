@@ -21,6 +21,19 @@ const dbSchema = {
     ]
 };
 
+const filters = {
+    'CIS_bdpm': (properties) => {
+        const k = 'surveillance_renforcee';
+        const v = properties[k];
+        if (v) {
+            if (v.toLowerCase() === 'non') properties[k] = false;
+            else properties[k] = true;
+        }
+        else console.log(properties);
+        return properties;
+    }
+}
+
 function readFile(filename) {
     return new Promise((resolve, reject) => {
         const url = new URL(`http://base-donnees-publique.medicaments.gouv.fr/telechargement.php?fichier=${filename}.txt`);
@@ -53,5 +66,8 @@ async function getProperties(filename) {
             };
             return obj;
         });
-    return content;
+    const filter = filters[filename];
+    return filter
+        ? content.map((p, _) => { return filter(p); })
+        : content;
 };
