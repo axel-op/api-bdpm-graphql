@@ -18,29 +18,30 @@ var schema = buildSchema(`
         etat_commercialisation: String!
         date_AMM: Date!
         statut_BDM: String
-        numero_autorisation_europeenne: Int
+        numero_autorisation_europeenne: String
         titulaires: String
         surveillance_renforcee: Boolean!
     }
 
     type Query {
-        props: [Medicament]!
+        medicaments: [Medicament]!
     }
 `);
 
 // The root provides the top-level API endpoints
 var root = {
-    props: async () => {
+    medicaments: async () => {
         const p = await data.getProperties('CIS_bdpm');
         return p;
     }
 }
 
 var app = express();
+var port = 4000;
 app.use('/graphql', graphqlHTTP({
     schema: schema,
     rootValue: root,
     graphiql: true,
 }));
-app.listen(4000);
-console.log('Running a GraphQL API server at http://localhost:4000/graphql');
+app.listen(port);
+console.log(`Running a GraphQL API server at http://localhost:${port}/graphql`);
