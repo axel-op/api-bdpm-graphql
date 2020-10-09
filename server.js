@@ -23,8 +23,25 @@ var schema = buildSchema(`
         surveillance_renforcee: Boolean!
     }
 
+    type Presentation {
+        code_CIS: String!
+        code_CIP7: ID!
+        libelle: String!
+        statut_admin: String
+        etat_commercialisation: String
+        date_declaration_commercialisation: Date
+        code_CIP13: String!
+        agrement_collectivites: Boolean
+        taux_remboursement: Int
+        prix_sans_honoraires: Float
+        prix_avec_honoraires: Float
+        honoraires: Float
+        indications_remboursement: String
+    }
+
     type Query {
         medicaments(codes_CIS: [ID]): [Medicament]!
+        presentations: [Presentation]!
     }
 `);
 
@@ -33,6 +50,10 @@ var root = {
     medicaments: async ({ codes_CIS }) => {
         const p = await data.getProperties('CIS_bdpm');
         return p.filter(o => codes_CIS.includes(o['code_CIS']));
+    },
+    presentations: async () => {
+        const p = await data.getProperties('CIS_CIP_bdpm');
+        return p;
     }
 }
 

@@ -18,18 +18,54 @@ const dbSchema = {
         'numero_autorisation_europeenne',
         'titulaires',
         'surveillance_renforcee'
+    ],
+    'CIS_CIP_bdpm': [ // fichier des présentations
+        'code_CIS',
+        'code_CIP7',
+        'libelle',
+        'statut_admin',
+        'etat_commercialisation',
+        'date_declaration_commercialisation',
+        'code_CIP13',
+        'agrement_collectivites',
+        'taux_remboursement',
+        'prix_sans_honoraires',
+        'prix_avec_honoraires',
+        'honoraires',
+        'indications_remboursement'
     ]
 };
+
+function ouiNonToBooleans(value) {
+    if (value) {
+        if (value.toLowerCase() === 'non') return false;
+        if (value.toLowerCase() === 'oui') return true;
+    }
+    return value;
+}
+
+function formatPrice(value) {
+    // Replace only last occurrence of ',' by '.', remove the other ones
+    if (value) value = value.replace(/,([0-9]+)$/, '.' + '$1').replace(',', '');
+    return value;
+}
 
 const filters = {
     'CIS_bdpm': (properties) => {
         const k = 'surveillance_renforcee';
         const v = properties[k];
-        if (v) {
-            if (v.toLowerCase() === 'non') properties[k] = false;
-            else properties[k] = true;
+        properties[k] = ouiNonToBooleans(v);
+        return properties;
+    },
+    'CIS_CIP_bdpm': (properties) => {
+        let k = 'taux_remboursement';
+        let v = properties[k];
+        if (v) properties[k] = v.replace(/%$/, '').trim();
+        k = 'agrement_collectivites';
+        properties[k] = ouiNonToBooleans(properties[k]);
+        for (let key of ['prix_sans_honoraires', 'prix_avec_honoraires', 'honoraires']) {
+            properties[key] = formatPrice(properties[key]);
         }
-        else console.log(properties);
         return properties;
     }
 }
@@ -58,11 +94,11 @@ async function getProperties(filename) {
     let content = await readFile(filename);
     content = content
         .split(/\r?\n/)
-        .filter(line => line)
+        .filter(line => line) // we ignore empty lines
         .map((line, _) => {
             const obj = {};
             for (const [i, p] of line.split('\t').entries()) {
-                obj[dbSchema[filename][i]] = p.trim() || null;
+                obj[dbSchema[filename][i]] = p.trim() || null; // empty values are set to null
             };
             return obj;
         });
