@@ -1,3 +1,5 @@
+const fs = require('fs')
+const path = require('path')
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
@@ -9,47 +11,7 @@ async function main() {
     const presentations = graph['presentations'];
 
     // Construct a schema, using GraphQL schema language
-    const schema = buildSchema(`
-    scalar Date
-
-    type Medicament {
-        code_CIS: ID!
-        denomination: String!
-        forme_pharmaceutique: String!
-        voies_administration: String!
-        statut_admin_AMM: String!
-        type_procedure_AMM: String!
-        etat_commercialisation: String!
-        date_AMM: Date!
-        statut_BDM: String
-        numero_autorisation_europeenne: String
-        titulaires: String
-        surveillance_renforcee: Boolean!
-        presentations: [Presentation!]!
-        conditions_prescription: [String!]!
-    }
-
-    type Presentation {
-        code_CIS: String!
-        code_CIP7: ID!
-        libelle: String!
-        statut_admin: String
-        etat_commercialisation: String
-        date_declaration_commercialisation: Date
-        code_CIP13: String!
-        agrement_collectivites: Boolean
-        taux_remboursement: Int
-        prix_sans_honoraires: Float
-        prix_avec_honoraires: Float
-        honoraires: Float
-        indications_remboursement: String
-    }
-
-    type Query {
-        medicaments(codes_CIS: [ID!]): [Medicament!]!
-        presentations(codes_CIP7: [ID!]): [Presentation!]!
-    }
-`);
+    const schema = buildSchema(fs.readFileSync(path.resolve(__dirname, '..', 'schema.graphql'), 'utf-8'));
 
     // The root provides the top-level API endpoints
     const root = {
