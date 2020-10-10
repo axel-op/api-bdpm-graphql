@@ -2,10 +2,14 @@ const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
 
-const data = require('./data.js');
+async function main() {
 
-// Construct a schema, using GraphQL schema language
-var schema = buildSchema(`
+    const graph = await require('./graph.js').buildGraph();
+    const medicaments = graph['medicaments'];
+    const presentations = graph['presentations'];
+
+    // Construct a schema, using GraphQL schema language
+    const schema = buildSchema(`
     scalar Date
 
     type Medicament {
@@ -21,6 +25,7 @@ var schema = buildSchema(`
         numero_autorisation_europeenne: String
         titulaires: String
         surveillance_renforcee: Boolean!
+        presentations: [Presentation!]
     }
 
     type Presentation {
@@ -40,29 +45,36 @@ var schema = buildSchema(`
     }
 
     type Query {
-        medicaments(codes_CIS: [ID]): [Medicament]!
-        presentations: [Presentation]!
+        medicaments(codes_CIS: [ID!]): [Medicament!]!
+        presentations(codes_CIP7: [ID!]): [Presentation!]!
     }
 `);
 
-// The root provides the top-level API endpoints
-var root = {
-    medicaments: async ({ codes_CIS }) => {
-        const p = await data.getProperties('CIS_bdpm');
-        return p.filter(o => codes_CIS.includes(o['code_CIS']));
-    },
-    presentations: async () => {
-        const p = await data.getProperties('CIS_CIP_bdpm');
-        return p;
+    // The root provides the top-level API endpoints
+    const root = {
+        medicaments: async ({ codes_CIS }) => {
+            const results = [];
+            if (codes_CIS) codes_CIS.forEach(c => results.push(medicaments[c]));
+            else results.push(...Object.values(medicaments));
+            return results;
+        },
+        presentations: async ({ codes_CIP7 }) => {
+            const results = [];
+            if (codes_CIP7) codes_CIP7.forEach(c => results.push(presentations[c]));
+            else results.push(...Object.values(presentations));
+            return results;
+        }
     }
+
+    const app = express();
+    const port = 4000;
+    app.use('/graphql', graphqlHTTP({
+        schema: schema,
+        rootValue: root,
+        graphiql: true,
+    }));
+    app.listen(port);
+    console.log(`Running a GraphQL API server at http://localhost:${port}/graphql`);
 }
 
-var app = express();
-var port = 4000;
-app.use('/graphql', graphqlHTTP({
-    schema: schema,
-    rootValue: root,
-    graphiql: true,
-}));
-app.listen(port);
-console.log(`Running a GraphQL API server at http://localhost:${port}/graphql`);
+main();
