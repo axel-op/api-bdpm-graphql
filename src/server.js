@@ -19,6 +19,10 @@ function sortValuesByKey(object) {
         .map(k => object[k]);
 }
 
+function slice(array, limit) {
+    return limit ? array.slice(0, limit) : array;
+}
+
 async function main() {
 
     const graph = await require('./graph.js').buildGraph();
@@ -31,18 +35,24 @@ async function main() {
 
     // The root provides the top-level API endpoints
     const root = {
-        medicaments: async ({ codes_CIS }) => {
-            if (codes_CIS) return getFromIndex(medicaments, codes_CIS);
-            return sortValuesByKey(medicaments);
+        medicaments: async ({ codes_CIS, limit }) => {
+            const results = codes_CIS
+                ? getFromIndex(medicaments, codes_CIS)
+                : sortValuesByKey(medicaments);
+            return slice(results, limit);
         },
-        presentations: async ({ codes_CIP7_ou_CIP13 }) => {
+        presentations: async ({ codes_CIP7_ou_CIP13, limit }) => {
             const codes = codes_CIP7_ou_CIP13;
-            if (codes) return codes.map((c, _) => presentations[c.length <= 7 ? 'CIP7' : 'CIP13'][c]);
-            return sortValuesByKey(presentations['CIP7']);
+            const results = codes
+                ? codes.map((c, _) => presentations[c.length <= 7 ? 'CIP7' : 'CIP13'][c])
+                : sortValuesByKey(presentations['CIP7']);
+            return slice(results, limit);
         },
-        substances: async ({ codes_substances }) => {
-            if (codes_substances) return getFromIndex(substances, codes_substances);
-            return sortValuesByKey(substances);
+        substances: async ({ codes_substances, limit }) => {
+            const results = codes_substances
+                ? getFromIndex(substances, codes_substances)
+                : sortValuesByKey(substances);
+            return slice(results, limit);
         },
     }
 
