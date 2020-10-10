@@ -20,11 +20,11 @@ type Medicament {
 type Presentation {
     code_CIS: ID!
     code_CIP7: ID!
+    code_CIP13: ID!
     libelle: String!
     statut_admin: String
     etat_commercialisation: String
     date_declaration_commercialisation: Date
-    code_CIP13: String!
     agrement_collectivites: Boolean
     taux_remboursement: Int
     prix_sans_honoraires: Float
@@ -35,5 +35,5 @@ type Presentation {
 
 type Query {
     medicaments(codes_CIS: [ID!]): [Medicament!]!
-    presentations(codes_CIP7: [ID!]): [Presentation!]!
+    presentations(codes_CIP7_ou_CIP13: [ID!]): [Presentation!]!
 }

@@ -22,9 +22,13 @@ async function main() {
             console.log(results);
             return results;
         },
-        presentations: async ({ codes_CIP7 }) => {
+        presentations: async ({ codes_CIP7_ou_CIP13 }) => {
             const results = [];
-            if (codes_CIP7) codes_CIP7.forEach(c => results.push(presentations[c]));
+            const codes = codes_CIP7_ou_CIP13;
+            if (codes) codes.forEach(c => {
+                const index = c.length <= 7 ? 'CIP7' : 'CIP13';
+                results.push(presentations[index][c]);
+            });
             else results.push(...Object.values(presentations));
             return results;
         }

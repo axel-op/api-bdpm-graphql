@@ -39,7 +39,10 @@ async function buildGraph() {
     medicaments = addField(conditions, medicaments, 'conditions_prescription', 'code_CIS', o => o['conditions_prescription']);
     const graph = {
         'medicaments': medicaments,
-        'presentations': indexById(presentations, 'code_CIP7'),
+        'presentations': {
+            'CIP7': indexById(presentations, 'code_CIP7'),
+            'CIP13': indexById(presentations, 'code_CIP13'),
+        },
     };
     console.log('Graph built');
     return graph;
