@@ -4,6 +4,15 @@ const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
 
+function getFromIndex(index, keys) {
+    const results = [];
+    keys.forEach(k => {
+        const v = index[k];
+        if (v) results.push(v);
+    });
+    return results;
+}
+
 async function main() {
 
     const graph = await require('./graph.js').buildGraph();
