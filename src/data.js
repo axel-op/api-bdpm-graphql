@@ -34,10 +34,20 @@ const dbSchema = {
         'honoraires',
         'indications_remboursement'
     ],
+    'CIS_COMPO_bdpm': [
+        'code_CIS',
+        'designation_element_pharmaceutique',
+        'code_substance',
+        'denomination',
+        'dosage_substance',
+        'reference_dosage',
+        'nature_composant',
+        'numero_liaison_sa_ft'
+    ],
     'CIS_CPD_bdpm': [
         'code_CIS',
         'conditions_prescription'
-    ]
+    ],
 };
 
 function ouiNonToBooleans(value) {
@@ -48,9 +58,11 @@ function ouiNonToBooleans(value) {
     return value;
 }
 
-function formatPrice(value) {
-    // Replace only last occurrence of ',' by '.', remove the other ones
-    if (value) value = value.replace(/,([0-9]+)$/, '.' + '$1').replace(',', '');
+function formatFloatNumber(value) {
+    // Replace only the last occurrence of ',' by '.', remove the other ones
+    if (value) value = value
+        .replace(/,([0-9]+)$/, '.' + '$1')
+        .replace(',', '');
     return value;
 }
 
@@ -67,9 +79,8 @@ const filters = {
         if (v) properties[k] = v.replace(/%$/, '').trim();
         k = 'agrement_collectivites';
         properties[k] = ouiNonToBooleans(properties[k]);
-        for (let key of ['prix_sans_honoraires', 'prix_avec_honoraires', 'honoraires']) {
-            properties[key] = formatPrice(properties[key]);
-        }
+        ['prix_sans_honoraires', 'prix_avec_honoraires', 'honoraires']
+            .forEach(key => properties[key] = formatFloatNumber(properties[key]));
         return properties;
     }
 }

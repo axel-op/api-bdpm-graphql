@@ -13,8 +13,9 @@ type Medicament {
     numero_autorisation_europeenne: String
     titulaires: String
     surveillance_renforcee: Boolean!
-    presentations: [Presentation!]!
     conditions_prescription: [String!]!
+    presentations: [Presentation!]!
+    substances: [SubstanceConcrete!]!
 }
 
 type Presentation {
@@ -33,7 +34,22 @@ type Presentation {
     indications_remboursement: String
 }
 
+type Substance {
+    code_substance: ID!
+    denomination: String!
+}
+
+type SubstanceConcrete {
+    substance: Substance!
+    code_CIS: ID!
+    designation_element_pharmaceutique: String!
+    dosage_substance: String!
+    reference_dosage: String!
+    nature_composant: String!
+}
+
 type Query {
     medicaments(codes_CIS: [ID!]): [Medicament!]!
     presentations(codes_CIP7_ou_CIP13: [ID!]): [Presentation!]!
+    substances(codes_substances: [ID!]): [Substance!]!
 }
