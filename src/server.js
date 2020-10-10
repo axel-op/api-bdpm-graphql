@@ -13,6 +13,12 @@ function getFromIndex(index, keys) {
     return results;
 }
 
+function sortValuesByKey(object) {
+    return Object.keys(object)
+        .sort()
+        .map(k => object[k]);
+}
+
 async function main() {
 
     const graph = await require('./graph.js').buildGraph();
@@ -27,16 +33,16 @@ async function main() {
     const root = {
         medicaments: async ({ codes_CIS }) => {
             if (codes_CIS) return getFromIndex(medicaments, codes_CIS);
-            return Object.values(medicaments);
+            return sortValuesByKey(medicaments);
         },
         presentations: async ({ codes_CIP7_ou_CIP13 }) => {
             const codes = codes_CIP7_ou_CIP13;
             if (codes) return codes.map((c, _) => presentations[c.length <= 7 ? 'CIP7' : 'CIP13'][c]);
-            return Object.values(presentations['CIP7']);
+            return sortValuesByKey(presentations['CIP7']);
         },
         substances: async ({ codes_substances }) => {
             if (codes_substances) return getFromIndex(substances, codes_substances);
-            return Object.values(substances);
+            return sortValuesByKey(substances);
         },
     }
 
