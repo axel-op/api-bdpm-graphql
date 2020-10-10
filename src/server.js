@@ -25,7 +25,8 @@ async function main() {
         numero_autorisation_europeenne: String
         titulaires: String
         surveillance_renforcee: Boolean!
-        presentations: [Presentation!]
+        presentations: [Presentation!]!
+        conditions_prescription: [String!]!
     }
 
     type Presentation {
@@ -56,6 +57,7 @@ async function main() {
             const results = [];
             if (codes_CIS) codes_CIS.forEach(c => results.push(medicaments[c]));
             else results.push(...Object.values(medicaments));
+            console.log(results);
             return results;
         },
         presentations: async ({ codes_CIP7 }) => {

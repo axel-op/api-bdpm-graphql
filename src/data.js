@@ -33,6 +33,10 @@ const dbSchema = {
         'prix_avec_honoraires',
         'honoraires',
         'indications_remboursement'
+    ],
+    'CIS_CPD_bdpm': [
+        'code_CIS',
+        'conditions_prescription'
     ]
 };
 
