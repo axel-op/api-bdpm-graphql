@@ -1,5 +1,5 @@
 module.exports = {
-    buildGraph: buildGraph
+    buildGraph
 }
 
 const data = require('./data.js');
@@ -31,12 +31,7 @@ function addField(from, index, field, id, map) {
 async function buildGraph() {
     console.log('Building graph...');
     console.time('Graph built');
-    const files = {
-        medicaments: 'CIS_bdpm', 
-        presentations: 'CIS_CIP_bdpm',
-        conditions: 'CIS_CPD_bdpm',
-        substances: 'CIS_COMPO_bdpm',
-    };
+    const files = data.files;
     Object.keys(files).forEach(k => files[k] = data.getProperties(files[k]));
     let medicaments = await files.medicaments;
     medicaments.forEach(m => {

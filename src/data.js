@@ -1,11 +1,19 @@
+const files = {
+    medicaments: 'CIS_bdpm', 
+    presentations: 'CIS_CIP_bdpm',
+    conditions: 'CIS_CPD_bdpm',
+    substances: 'CIS_COMPO_bdpm',
+};
+
 module.exports = {
-    getProperties: getProperties
+    getProperties,
+    files,
 };
 
 const http = require('http');
 
 const dbSchema = {
-    'CIS_bdpm': [
+    [files.medicaments]: [
         'code_CIS',
         'denomination',
         'forme_pharmaceutique',
@@ -19,7 +27,7 @@ const dbSchema = {
         'titulaires',
         'surveillance_renforcee'
     ],
-    'CIS_CIP_bdpm': [ // fichier des présentations
+    [files.presentations]: [
         'code_CIS',
         'code_CIP7',
         'libelle',
@@ -34,7 +42,7 @@ const dbSchema = {
         'honoraires',
         'indications_remboursement'
     ],
-    'CIS_COMPO_bdpm': [
+    [files.substances]: [
         'code_CIS',
         'designation_element_pharmaceutique',
         'code_substance',
@@ -44,7 +52,7 @@ const dbSchema = {
         'nature_composant',
         'numero_liaison_sa_ft'
     ],
-    'CIS_CPD_bdpm': [
+    [files.conditions]: [
         'code_CIS',
         'conditions_prescription'
     ],
