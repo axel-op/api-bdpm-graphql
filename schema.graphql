@@ -49,7 +49,7 @@ type SubstanceConcrete {
 }
 
 type Query {
-    medicaments(codes_CIS: [ID!], limit: Int): [Medicament!]!
-    presentations(codes_CIP7_ou_CIP13: [ID!], limit: Int): [Presentation!]!
-    substances(codes_substances: [ID!], limit: Int): [Substance!]!
+    medicaments(codes_CIS: [ID!], limit: Int, from: Int): [Medicament!]!
+    presentations(codes_CIP7_ou_CIP13: [ID!], limit: Int, from: Int): [Presentation!]!
+    substances(codes_substances: [ID!], limit: Int, from: Int): [Substance!]!
 }
