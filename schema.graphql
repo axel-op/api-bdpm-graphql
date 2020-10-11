@@ -43,8 +43,8 @@ type SubstanceConcrete {
     substance: Substance!
     code_CIS: ID!
     designation_element_pharmaceutique: String!
-    dosage_substance: String!
-    reference_dosage: String!
+    dosage_substance: String
+    reference_dosage: String
     nature_composant: String!
 }
 
