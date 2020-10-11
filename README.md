@@ -6,6 +6,10 @@ Démarrer le serveur :
 node src/server.js
 ```
 
+## Exemples
+
+### Requête par code
+
 Exemple de requête :
 
 ```graphql
@@ -33,8 +37,8 @@ Exemple de requête :
   }
   
   presentations(codes_CIP7_ou_CIP13: [3334167, 3400938235296]) {
-    code_CIP7,
-    code_CIP13,
+    code_CIP7
+    code_CIP13
     libelle
   }
   
@@ -45,7 +49,7 @@ Exemple de requête :
 }
 ```
 
-Exemple de réponse :
+Réponse :
 
 ```json
 {
@@ -110,6 +114,92 @@ Exemple de réponse :
       {
         "code_substance": "39727",
         "denomination": "AMLODIPINE"
+      }
+    ]
+  }
+}
+```
+
+### Requête paginée
+
+Exemple de requête :
+
+```graphql
+{
+  page_1: presentations(limit: 3, from: 0) {
+    code_CIP7
+    libelle
+  }
+  
+  page_2: presentations(limit: 3, from: 3) {
+    code_CIP7
+    libelle
+  }
+  
+  pages_1_et_2: presentations(limit: 6) {
+    code_CIP7
+    libelle
+  }
+}
+```
+
+Réponse :
+
+```json
+{
+  "data": {
+    "page_1": [
+      {
+        "code_CIP7": "2160191",
+        "libelle": "plaquette(s) thermoformée(s) aluminium de 28 comprimé(s)"
+      },
+      {
+        "code_CIP7": "2160363",
+        "libelle": "4 poche(s) bicompartimenté(e)(s) polymère multicouches BIOFINE de 1000 ml"
+      },
+      {
+        "code_CIP7": "2160417",
+        "libelle": "flacon(s) polyéthylène haute densité (PEHD) de 28 comprimé(s)"
+      }
+    ],
+    "page_2": [
+      {
+        "code_CIP7": "2160423",
+        "libelle": "flacon(s) polyéthylène haute densité (PEHD) de 14 comprimé(s)"
+      },
+      {
+        "code_CIP7": "2160469",
+        "libelle": "1 flacon(s) polyéthylène de 5 ml avec compte-gouttes"
+      },
+      {
+        "code_CIP7": "2160908",
+        "libelle": "4 seringue(s) préremplie(s) en verre de 0,5 ml dans stylo pré-rempli"
+      }
+    ],
+    "pages_1_et_2": [
+      {
+        "code_CIP7": "2160191",
+        "libelle": "plaquette(s) thermoformée(s) aluminium de 28 comprimé(s)"
+      },
+      {
+        "code_CIP7": "2160363",
+        "libelle": "4 poche(s) bicompartimenté(e)(s) polymère multicouches BIOFINE de 1000 ml"
+      },
+      {
+        "code_CIP7": "2160417",
+        "libelle": "flacon(s) polyéthylène haute densité (PEHD) de 28 comprimé(s)"
+      },
+      {
+        "code_CIP7": "2160423",
+        "libelle": "flacon(s) polyéthylène haute densité (PEHD) de 14 comprimé(s)"
+      },
+      {
+        "code_CIP7": "2160469",
+        "libelle": "1 flacon(s) polyéthylène de 5 ml avec compte-gouttes"
+      },
+      {
+        "code_CIP7": "2160908",
+        "libelle": "4 seringue(s) préremplie(s) en verre de 0,5 ml dans stylo pré-rempli"
       }
     ]
   }
