@@ -120,6 +120,99 @@ Réponse :
 }
 ```
 
+### Requête filtrée par date
+
+Il est possible de filtrer les médicaments par date d'autorisation de mise sur le marché (AMM).
+
+Le paramètre `date_AMM` est [de type `DateFilter`](./schema.graphql) et a deux propriétés : `before` renverra les médicaments mis sur le marché avant ou à cette date, et `after` renverra les médicaments mis sur le marché à ou après cette date.
+
+Spécifier une même date pour les deux propriétés renverra les médicaments mis sur le marché à cette date exactement.
+
+Exemple de requête :
+
+```graphql
+{
+  dateAvant: medicaments(
+    date_AMM: {before: "22/12/1999"},
+    limit: 2
+  ) {
+    denomination
+    date_AMM
+  }
+  
+  dateApres: medicaments(
+    date_AMM: {after: "22/12/1999"},
+    limit: 2
+  ) {
+    denomination
+    date_AMM
+  }
+  
+  dateExacte: medicaments(
+    date_AMM: {after: "22/12/1999", before: "22/12/1999"}
+  ) {
+    denomination
+    date_AMM
+  }
+  
+  periode: medicaments(
+    date_AMM: {after: "01/11/1999", before: "08/11/1999"}
+  ) {
+    denomination
+    date_AMM
+  }
+}
+```
+
+Réponse :
+
+```json
+{
+  "data": {
+    "dateAvant": [
+      {
+        "denomination": "RANITIDINE BIOGARAN 150 mg, comprimé effervescent",
+        "date_AMM": "04/07/1989"
+      },
+      {
+        "denomination": "FENOFIBRATE TEVA 100 mg, gélule",
+        "date_AMM": "06/12/1996"
+      }
+    ],
+    "dateApres": [
+      {
+        "denomination": "ANASTROZOLE ACCORD 1 mg, comprimé pelliculé",
+        "date_AMM": "28/10/2010"
+      },
+      {
+        "denomination": "ACTAEA RACEMOSA FERRIER, degré de dilution compris entre 2CH et 30CH ou entre 4DH et 60DH",
+        "date_AMM": "03/01/2008"
+      }
+    ],
+    "dateExacte": [
+      {
+        "denomination": "FAMOTIDINE EG 20 mg, comprimé pelliculé",
+        "date_AMM": "22/12/1999"
+      },
+      {
+        "denomination": "FAMOTIDINE EG 40 mg, comprimé pelliculé",
+        "date_AMM": "22/12/1999"
+      }
+    ],
+    "periode": [
+      {
+        "denomination": "KABIVEN, émulsion pour perfusion",
+        "date_AMM": "08/11/1999"
+      },
+      {
+        "denomination": "CISPLATINE MYLAN 25 mg/25 ml, solution à diluer pour perfusion",
+        "date_AMM": "02/11/1999"
+      }
+    ]
+  }
+}
+```
+
 ### Requête paginée
 
 Exemple de requête :

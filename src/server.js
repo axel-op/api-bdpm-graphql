@@ -25,6 +25,26 @@ function slice(array, from, limit) {
     return array.slice(from, limit ? from + limit : limit);
 }
 
+function convertToDate(str) {
+    const regex = /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/
+    if (!regex.test(str)) throw new Error(`Date mal formatée: ${str}. Une date doit avoir le format JJ/MM/AAAA.`);
+    const match = str.match(regex);
+    const date = new Date(match[3], match[2], match[1]);
+    return date;
+}
+
+function dateFilter(array, field, before, after) {
+    if (before) {
+        before = convertToDate(before);
+        array = array.filter(o => o[field] && convertToDate(o[field]) <= before);
+    }
+    if (after) {
+        after = convertToDate(after);
+        array = array.filter(o => o[field] && convertToDate(o[field]) >= after);
+    }
+    return array;
+}
+
 async function main() {
 
     const graph = await require('./graph.js').buildGraph();
@@ -37,10 +57,11 @@ async function main() {
 
     // The root provides the top-level API endpoints
     const root = {
-        medicaments: async ({ codes_CIS, from, limit }) => {
-            const results = codes_CIS
+        medicaments: async ({ codes_CIS, from, limit, date_AMM }) => {
+            let results = codes_CIS
                 ? getFromIndex(medicaments, codes_CIS)
                 : sortValuesByKey(medicaments);
+            if (date_AMM) results = dateFilter(results, 'date_AMM', date_AMM.before, date_AMM.after);
             return slice(results, from, limit);
         },
         presentations: async ({ codes_CIP7_ou_CIP13, from, limit }) => {
