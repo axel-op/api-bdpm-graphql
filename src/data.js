@@ -63,6 +63,7 @@ const mappings = {
     [files.medicaments]: {
         'surveillance_renforcee': ouiNonToBooleans,
         'date_AMM': v => v ? strToDate(v) : v,
+        'titulaires': v => v ? v.split(';').map(s => s.trim()) : [],
     },
     [files.presentations]: {
         'taux_remboursement': v => v ? v.replace(/%$/, '').trim() : v,
