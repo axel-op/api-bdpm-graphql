@@ -11,6 +11,7 @@ module.exports = {
 };
 
 const http = require('http');
+const { strToDate } = require('./utils');
 
 const dbSchema = {
     [files.medicaments]: [
@@ -75,13 +76,16 @@ function formatFloatNumber(value) {
 }
 
 const filters = {
-    'CIS_bdpm': (properties) => {
-        const k = 'surveillance_renforcee';
-        const v = properties[k];
+    [files.medicaments]: (properties) => {
+        let k = 'surveillance_renforcee';
+        let v = properties[k];
         properties[k] = ouiNonToBooleans(v);
+        k = 'date_AMM';
+        v = properties[k];
+        if (v) properties[k] = strToDate(v);
         return properties;
     },
-    'CIS_CIP_bdpm': (properties) => {
+    [files.presentations]: (properties) => {
         let k = 'taux_remboursement';
         let v = properties[k];
         if (v) properties[k] = v.replace(/%$/, '').trim();
