@@ -1,5 +1,5 @@
 const files = {
-    medicaments: 'CIS_bdpm', 
+    medicaments: 'CIS_bdpm',
     presentations: 'CIS_CIP_bdpm',
     conditions: 'CIS_CPD_bdpm',
     substances: 'CIS_COMPO_bdpm',
@@ -59,6 +59,20 @@ const dbSchema = {
     ],
 };
 
+const mappings = {
+    [files.medicaments]: {
+        'surveillance_renforcee': ouiNonToBooleans,
+        'date_AMM': v => v ? strToDate(v) : v,
+    },
+    [files.presentations]: {
+        'taux_remboursement': v => v ? v.replace(/%$/, '').trim() : v,
+        'agrement_collectivites': ouiNonToBooleans,
+        'prix_sans_honoraires': formatFloatNumber,
+        'prix_avec_honoraires': formatFloatNumber,
+        'honoraires': formatFloatNumber,
+    }
+}
+
 function ouiNonToBooleans(value) {
     if (value) {
         if (value.toLowerCase() === 'non') return false;
@@ -73,28 +87,6 @@ function formatFloatNumber(value) {
         .replace(/,([0-9]+)$/, '.' + '$1')
         .replace(',', '');
     return value;
-}
-
-const filters = {
-    [files.medicaments]: (properties) => {
-        let k = 'surveillance_renforcee';
-        let v = properties[k];
-        properties[k] = ouiNonToBooleans(v);
-        k = 'date_AMM';
-        v = properties[k];
-        if (v) properties[k] = strToDate(v);
-        return properties;
-    },
-    [files.presentations]: (properties) => {
-        let k = 'taux_remboursement';
-        let v = properties[k];
-        if (v) properties[k] = v.replace(/%$/, '').trim();
-        k = 'agrement_collectivites';
-        properties[k] = ouiNonToBooleans(properties[k]);
-        ['prix_sans_honoraires', 'prix_avec_honoraires', 'honoraires']
-            .forEach(key => properties[key] = formatFloatNumber(properties[key]));
-        return properties;
-    }
 }
 
 function readFile(filename) {
@@ -119,18 +111,18 @@ function readFile(filename) {
 
 async function getProperties(filename) {
     let content = await readFile(filename);
-    content = content
+    return content
         .split(/\r?\n/)
         .filter(line => line) // we ignore empty lines
         .map((line, _) => {
             const obj = {};
-            for (const [i, p] of line.split('\t').entries()) {
-                obj[dbSchema[filename][i]] = p.trim() || null; // empty values are set to null
+            for (let [i, p] of line.split('\t').entries()) {
+                const prop = dbSchema[filename][i];
+                const mapping = (mappings[filename] || {})[prop];
+                p = p.trim() || null; // empty values are set to null
+                if (mapping) p = mapping(p);
+                obj[prop] = p; 
             };
             return obj;
         });
-    const filter = filters[filename];
-    return filter
-        ? content.map((p, _) => { return filter(p); })
-        : content;
 };
