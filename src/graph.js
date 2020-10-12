@@ -15,7 +15,7 @@ function indexById(objects, id, allow_duplicates = false) {
     }, {});
 }
 
-function addField(from, index, field, id, map) {
+function addFieldToIndexedObjects(index, from, field, id, map) {
     for (let o of from) {
         const t = index[o[id]];
         if (map) o = map(o);
@@ -28,37 +28,50 @@ function addField(from, index, field, id, map) {
     return index;
 }
 
+function addGetter(object, field, getter) {
+    Object.defineProperty(object, field, { get: getter });
+}
+
 async function buildGraph() {
     console.log('Building graph...');
     console.time('Graph built');
-    const files = data.files;
-    Object.keys(files).forEach(k => files[k] = data.getProperties(files[k]));
-    let medicaments = await files.medicaments;
+    const props = data.files;
+    Object.keys(props).forEach(k => props[k] = data.getProperties(props[k]));
+
+    let presentations = await props.presentations;
+    presentations = {
+        'CIP7': indexById(presentations, 'code_CIP7'),
+        'CIP13': indexById(presentations, 'code_CIP13'),
+        'code_CIS': indexById(presentations, 'code_CIS', true),
+    }
+
+    let substances = await props.substances;
+    substances = {
+        'code_substance': indexById(substances, 'code_substance', true),
+        'code_CIS': indexById(substances, 'code_CIS', true),
+    }
+    for (const [code, array] of Object.entries(substances['code_substance'])) {
+        substances['code_substance'][code] = array[0]
+    }
+
+    let medicaments = await props.medicaments;
     medicaments.forEach(m => {
-        m['presentations'] = [];
+        addGetter(m, 'presentations', () => presentations['code_CIS'][m['code_CIS']])
+        addGetter(m, 'substances', () => substances['code_CIS'][m['code_CIS']])
         m['conditions_prescription'] = [];
-        m['substances'] = [];
     });
     medicaments = indexById(medicaments, 'code_CIS');
-    let presentations = await files.presentations;
-    medicaments = addField(presentations, medicaments, 'presentations', 'code_CIS');
-    let conditions = await files.conditions;
-    medicaments = addField(conditions, medicaments, 'conditions_prescription', 'code_CIS', o => o['conditions_prescription']);
-    let substances = await files.substances;
-    for (let substance of substances) substance['substance'] = {
-        'code_substance': substance['code_substance'],
-        'denomination': substance['denomination']
-    };
-    medicaments = addField(substances, medicaments, 'substances', 'code_CIS');
-    substances = indexById(substances, 'code_substance', true);
-    Object.keys(substances).forEach((c, _) => substances[c] = substances[c][0]);
+    medicaments = addFieldToIndexedObjects(medicaments, await props.conditions, 'conditions_prescription', 'code_CIS', o => o['conditions_prescription']);
+
+    Object.values(substances['code_CIS']).flat().forEach(s => {
+        addGetter(s, 'substance', () => s);
+        addGetter(s, 'medicament', () => medicaments[s['code_CIS']]);
+    });
+
     const graph = {
-        'substances': substances,
+        'substances': substances['code_substance'],
         'medicaments': medicaments,
-        'presentations': {
-            'CIP7': indexById(presentations, 'code_CIP7'),
-            'CIP13': indexById(presentations, 'code_CIP13'),
-        },
+        'presentations': presentations,
     };
     console.timeEnd('Graph built');
     return graph;

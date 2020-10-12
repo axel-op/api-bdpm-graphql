@@ -51,9 +51,8 @@ async function main() {
             return slice(results, from, limit);
         },
         presentations: async ({ codes_CIP7_ou_CIP13, from, limit }) => {
-            const codes = codes_CIP7_ou_CIP13;
-            const results = codes
-                ? codes.map((c, _) => presentations[c.length <= 7 ? 'CIP7' : 'CIP13'][c])
+            const results = codes_CIP7_ou_CIP13
+                ? getFromIndex({ ...presentations['CIP7'], ...presentations['CIP13'] }, codes_CIP7_ou_CIP13)
                 : sortValuesByKey(presentations['CIP7']);
             return slice(results, from, limit);
         },
