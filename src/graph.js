@@ -50,9 +50,6 @@ async function buildGraph() {
         'code_substance': indexById(substances, 'code_substance', true),
         'code_CIS': indexById(substances, 'code_CIS', true),
     }
-    for (const [code, array] of Object.entries(substances['code_substance'])) {
-        substances['code_substance'][code] = array[0]
-    }
 
     let medicaments = await props.medicaments;
     medicaments.forEach(m => {
@@ -66,10 +63,22 @@ async function buildGraph() {
     Object.values(substances['code_CIS']).flat().forEach(s => {
         addGetter(s, 'substance', () => s);
         addGetter(s, 'medicament', () => medicaments[s['code_CIS']]);
+        addGetter(s, 'medicaments', () => {
+            let codesCis = substances['code_substance'][s['code_substance']].map(s => s['code_CIS']);
+            codesCis = Array.from(new Set(codesCis)).sort();
+            return codesCis.map(c => medicaments[c]);
+        });
+    });
+    
+    Object.values(presentations['code_CIS']).flat().forEach(p => {
+        addGetter(p, 'medicament', () => medicaments[p['code_CIS']]);
     });
 
     const graph = {
-        'substances': substances['code_substance'],
+        'substances': Object.keys(substances['code_substance']).reduce((o, code) => {
+            o[code] = substances['code_substance'][code][0];
+            return o;
+        }, {}),
         'medicaments': medicaments,
         'presentations': presentations,
     };

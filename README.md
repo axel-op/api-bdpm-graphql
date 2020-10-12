@@ -40,6 +40,10 @@ Exemple de requête :
     code_CIP7
     code_CIP13
     libelle
+    medicament {
+      code_CIS
+      denomination
+    }
   }
   
   substances(codes_substances: [39727]) {
@@ -102,12 +106,20 @@ Réponse :
       {
         "code_CIP7": "3334167",
         "code_CIP13": "3400933341671",
-        "libelle": "plaquette(s) PVC PVDC aluminium de 30 gélule(s)"
+        "libelle": "plaquette(s) PVC PVDC aluminium de 30 gélule(s)",
+        "medicament": {
+          "code_CIS": "62204255",
+          "denomination": "AMLODIPINE PFIZER 5 mg, gélule"
+        }
       },
       {
         "code_CIP7": "3823529",
         "code_CIP13": "3400938235296",
-        "libelle": "plaquette(s) PVC PVDC aluminium de 90 gélule(s)"
+        "libelle": "plaquette(s) PVC PVDC aluminium de 90 gélule(s)",
+        "medicament": {
+          "code_CIS": "62204255",
+          "denomination": "AMLODIPINE PFIZER 5 mg, gélule"
+        }
       }
     ],
     "substances": [

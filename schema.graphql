@@ -19,7 +19,6 @@ type Medicament {
 }
 
 type Presentation {
-    code_CIS: ID!
     code_CIP7: ID!
     code_CIP13: ID!
     libelle: String!
@@ -32,20 +31,22 @@ type Presentation {
     prix_avec_honoraires: Float
     honoraires: Float
     indications_remboursement: String
+    medicament: Medicament!
 }
 
 type Substance {
     code_substance: ID!
     denomination: String!
+    medicaments: [Medicament!]!
 }
 
 type SubstanceConcrete {
     substance: Substance!
-    code_CIS: ID!
     designation_element_pharmaceutique: String!
     dosage_substance: String
     reference_dosage: String
     nature_composant: String!
+    medicament: Medicament!
 }
 
 input DateFilter {
