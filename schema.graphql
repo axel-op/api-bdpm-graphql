@@ -68,8 +68,9 @@ type Substance {
 
 "Substance telle qu'elle est contenue dans un médicament spécifique."
 type SubstanceConcrete {
-    "Objet contenant l'ID et le nom de la substance."
-    substance: Substance!
+    "Identifiant de la substance."
+    code_substance: ID!
+    denomination: String!
     "Exemples : gel, granules, comprimé..."
     designation_element_pharmaceutique: String!
     "Quantité de la substance par rapport à `reference_dosage`."

@@ -26,13 +26,10 @@ Exemple de requête :
       prix_avec_honoraires
     }
     substances {
-      substance {
-        code_substance
-        denomination
-      }
+      code_substance
+      denomination
       dosage_substance
       reference_dosage
-      designation_element_pharmaceutique
     }
   }
   
@@ -82,22 +79,16 @@ Réponse :
         ],
         "substances": [
           {
-            "substance": {
-              "code_substance": "39727",
-              "denomination": "AMLODIPINE"
-            },
+            "code_substance": "39727",
+            "denomination": "AMLODIPINE",
             "dosage_substance": "5 mg",
             "reference_dosage": "une gélule",
-            "designation_element_pharmaceutique": "gélule"
           },
           {
-            "substance": {
-              "code_substance": "93748",
-              "denomination": "AMLODIPINE (BÉSILATE D')"
-            },
+            "code_substance": "93748",
+            "denomination": "AMLODIPINE (BÉSILATE D')",
             "dosage_substance": "6,944 mg",
             "reference_dosage": "une gélule",
-            "designation_element_pharmaceutique": "gélule"
           }
         ]
       }
