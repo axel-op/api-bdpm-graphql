@@ -73,7 +73,7 @@ async function buildGraph() {
     let medicaments = await props.medicaments;
     medicaments.forEach(m => {
         const codeCis = m['code_CIS'];
-        addGetter(m, 'presentations', () => presentations['code_CIS'][codeCis]);
+        addGetter(m, 'presentations', () => presentations['code_CIS'][codeCis] || []);
         addGetter(m, 'substances', () => substances['code_CIS'][codeCis]);
         addGetter(m, 'groupes_generiques', () => groupesGeneriques['code_CIS'][codeCis] || []);
         m['conditions_prescription'] = [];
