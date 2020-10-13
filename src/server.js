@@ -53,8 +53,8 @@ async function main() {
         },
         presentations: ({ codes_CIP7_ou_CIP13, from, limit }) => {
             const results = codes_CIP7_ou_CIP13
-                ? getFromIndex({ ...presentations['CIP7'], ...presentations['CIP13'] }, codes_CIP7_ou_CIP13)
-                : sortValuesByKey(presentations['CIP7']);
+                ? getFromIndex({ ...presentations['code_CIP7'], ...presentations['code_CIP13'] }, codes_CIP7_ou_CIP13)
+                : sortValuesByKey(presentations['code_CIP7']);
             return slice(results, from, limit);
         },
         substances: ({ codes_substances, from, limit }) => {

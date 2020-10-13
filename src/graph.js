@@ -4,15 +4,23 @@ module.exports = {
 
 const data = require('./data.js');
 
-function indexById(objects, id, allow_duplicates = false) {
-    return objects.reduce((map, o) => {
-        if (map[o[id]]) {
-            if (allow_duplicates) map[o[id]].push(o);
-            else throw new Error(`Duplicate key: ${o[id]}`);
-        }
-        else map[o[id]] = allow_duplicates ? [o] : o;
-        return map;
-    }, {});
+function indexByIds(objects, ids, accumulate) {
+    return objects.reduce(
+        (indexes, o) => {
+            for (let i = 0; i < ids.length; i++) {
+                const id = ids[i];
+                const index = indexes[id];
+                const acc = accumulate && i < accumulate.length && accumulate[i];
+                if (index[o[id]]) {
+                    if (acc) index[o[id]].push(o);
+                    else throw new Error(`Duplicate key in ${id}: ${o[id]}`);
+                }
+                else index[o[id]] = acc ? [o] : o;
+            }
+            return indexes;
+        },
+        ids.reduce((indexes, id) => { indexes[id] = {}; return indexes; }, {})
+    );
 }
 
 function addFieldToIndexedObjects(index, from, field, id, map) {
@@ -52,23 +60,13 @@ async function buildGraph() {
     Object.keys(props).forEach(k => props[k] = data.getProperties(props[k]));
 
     let presentations = await props.presentations;
-    presentations = {
-        'CIP7': indexById(presentations, 'code_CIP7'),
-        'CIP13': indexById(presentations, 'code_CIP13'),
-        'code_CIS': indexById(presentations, 'code_CIS', true),
-    }
+    presentations = indexByIds(presentations, ['code_CIP7', 'code_CIP13', 'code_CIS'], [false, false, true]);
 
     let substances = await props.substances;
-    substances = {
-        'code_substance': indexById(substances, 'code_substance', true),
-        'code_CIS': indexById(substances, 'code_CIS', true),
-    }
+    substances = indexByIds(substances, ['code_substance', 'code_CIS'], [true, true]);
 
     let groupesGeneriques = await props.groupesGeneriques;
-    groupesGeneriques = {
-        'id': indexById(groupesGeneriques, 'id', true),
-        'code_CIS': indexById(groupesGeneriques, 'code_CIS', true),
-    }
+    groupesGeneriques = indexByIds(groupesGeneriques, ['id', 'code_CIS'], [true, true]);
 
     let medicaments = await props.medicaments;
     medicaments.forEach(m => {
@@ -78,7 +76,7 @@ async function buildGraph() {
         addGetter(m, 'groupes_generiques', () => groupesGeneriques['code_CIS'][codeCis] || []);
         m['conditions_prescription'] = [];
     });
-    medicaments = indexById(medicaments, 'code_CIS');
+    medicaments = indexByIds(medicaments, ['code_CIS'])['code_CIS'];
     medicaments = addFieldToIndexedObjects(medicaments, await props.conditions, 'conditions_prescription', 'code_CIS', o => o['conditions_prescription']);
 
     Object.values(substances['code_CIS']).flat().forEach(s => {
@@ -90,7 +88,7 @@ async function buildGraph() {
     Object.values(groupesGeneriques['code_CIS']).flat().forEach(g => {
         addGetter(g, 'medicaments', () => mapToIndex(groupesGeneriques['id'][g['id']], 'code_CIS', medicaments));
     });
-    
+
     Object.values(presentations['code_CIS']).flat().forEach(p => {
         addGetter(p, 'medicament', () => medicaments[p['code_CIS']]);
     });
