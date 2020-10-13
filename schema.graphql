@@ -1,86 +1,155 @@
 scalar Date
 
 type Medicament {
-    "Le Code Identifiant de Spécialité permet d’identifier un médicament quelle que soit sa présentation (ou son conditionnement)."
-    code_CIS: ID!
-    "Le nom commercial du médicament."
+    """
+    Le Code Identifiant de Spécialité permet d’identifier un médicament quelle que soit sa présentation (ou son conditionnement).
+    """
+    CIS: ID!
+    """
+    Le nom commercial du médicament.
+    """
     denomination: String!
-    "Forme galénique. Exemples : `gélule`, `gel`, `comprimé pelliculé`, `pommade`..."
+    """
+    Forme galénique. Exemples : `gélule`, `gel`, `comprimé pelliculé`, `pommade`...
+    """
     forme_pharmaceutique: String!
-    "Voie d'administration du médicament. Exemples : `orale`, `intraveineuse`, `vaginale`..."
+    """
+    Voie d'administration du médicament. Exemples : `orale`, `intraveineuse`, `vaginale`...
+    """
     voies_administration: String!
-    "Etat de l'autorisation de mise sur le marché (AMM). Exemples : `active`, `archivée`, `abrogée`..."
+    """
+    Etat de l'autorisation de mise sur le marché (AMM). Exemples : `active`, `archivée`, `abrogée`...
+    """
     statut_admin_AMM: String!
-    "Type de la procédure d'obtention de l'AMM. Exemples : `centralisée`, `nationale`, `par reconnaissance mutuelle`..."
+    """
+    Type de la procédure d'obtention de l'AMM. Exemples : `centralisée`, `nationale`, `par reconnaissance mutuelle`...
+    """
     type_procedure_AMM: String!
-    "Indique si le médicament est actuellement commercialisé."
+    """
+    Indique si le médicament est actuellement commercialisé.
+    """
     etat_commercialisation: String!
-    "Date de l'autorisation de mise sur le marché (AMM), au format `DD/MM/YYYY`."
+    """
+    Date de l'autorisation de mise sur le marché (AMM), au format `DD/MM/YYYY`.
+    """
     date_AMM: Date!
-    "Valeurs possibles : `Alerte` (icône rouge) ou `Warning disponibilité` (icône grise)."
+    """
+    Valeurs possibles : `Alerte` (icône rouge) ou `Warning disponibilité` (icône grise).
+    """
     statut_BDM: String
     numero_autorisation_europeenne: String
-    "Titulaires de l'AMM"
+    """
+    Titulaires de l'AMM
+    """
     titulaires: [String!]!
     surveillance_renforcee: Boolean!
     conditions_prescription: [String!]!
-    "Présentations (boîtes) du médicament."
+    """
+    Présentations (boîtes) du médicament.
+    """
     presentations: [Presentation!]!
-    "Les substances que le médicament contient."
+    """
+    Les substances que le médicament contient.
+    """
     substances: [SubstanceConcrete!]!
+    """
+    Les groupes génériques auxquel le médicament appartient.
+    """
     groupes_generiques: [GroupeGenerique!]!
 }
 
 type Presentation {
-    "Code Identifiant de Présentation à 7 chiffres."
-    code_CIP7: ID!
-    "Code Identifiant de Présentation à 13 chiffres."
-    code_CIP13: ID!
-    "Nom de la présentation."
+    """
+    Code Identifiant de Présentation à 7 chiffres.
+    """
+    CIP7: ID!
+    """
+    Code Identifiant de Présentation à 13 chiffres.
+    """
+    CIP13: ID!
+    """
+    Nom de la présentation.
+    """
     libelle: String!
     statut_admin: String
-    "Etat de commercialisation de la présentation tel que déclaré par le titulaire de l'AMM."
+    """
+    Etat de commercialisation de la présentation tel que déclaré par le titulaire de l'AMM.
+    """
     etat_commercialisation: String
-    "Date de la déclaration de commercialisation, au format `DD/MM/YYYY`."
+    """
+    Date de la déclaration de commercialisation, au format `DD/MM/YYYY`.
+    """
     date_declaration_commercialisation: Date
-    "Agrément aux collectivités. `null` si inconnu."
+    """
+    Agrément aux collectivités. `null` si inconnu.
+    """
     agrement_collectivites: Boolean
-    "Taux de remboursement par l'Assurance Maladie."
+    """
+    Taux de remboursement par l'Assurance Maladie.
+    """
     taux_remboursement: Int
-    "Prix en euros."
+    """
+    Prix en euros.
+    """
     prix_sans_honoraires: Float
-    "Prix en euros."
+    """
+    Prix en euros.
+    """
     prix_avec_honoraires: Float
-    "Honoraires de dispensation."
+    """
+    Honoraires de dispensation.
+    """
     honoraires: Float
-    "Texte présentant les indications ouvrant droit au remboursement par l’Assurance Maladie."
+    """
+    Texte présentant les indications ouvrant droit au remboursement par l’Assurance Maladie.
+    """
     indications_remboursement: String
-    "Le médicament vendu sous cette présentation."
+    """
+    Le médicament vendu sous cette présentation.
+    """
     medicament: Medicament!
 }
 
 type Substance {
-    "Identifiant de la substance."
+    """
+    Identifiant de la substance.
+    """
     code_substance: ID!
     denomination: String!
-    "Médicaments contenant cette substance."
+    """
+    Médicaments contenant cette substance.
+    """
     medicaments: [Medicament!]!
 }
 
-"Substance telle qu'elle est contenue dans un médicament spécifique."
+"""
+Substance telle qu'elle est contenue dans un médicament spécifique.
+"""
 type SubstanceConcrete {
-    "Identifiant de la substance."
+    """
+    Identifiant de la substance.
+    """
     code_substance: ID!
     denomination: String!
-    "Exemples : gel, granules, comprimé..."
+    """
+    Exemples : gel, granules, comprimé...
+    """
     designation_element_pharmaceutique: String!
-    "Quantité de la substance par rapport à `reference_dosage`."
+    """
+    Quantité de la substance par rapport à `reference_dosage`.
+    """
     dosage_substance: String
-    "Le dénominateur par rapport auquel est calculé le dosage."
+    """
+    Le dénominateur par rapport auquel est calculé le dosage.
+    """
     reference_dosage: String
-    "`SA` pour principe actif, `ST` pour fraction thérapeutique."
+    """
+    `SA` pour principe actif, `ST` pour fraction thérapeutique.
+    """
     nature_composant: NatureComposant!
-    "Le médicament contenant cette substance."
+    """
+    Le médicament contenant cette substance.
+    """
     medicament: Medicament!
 }
 
@@ -92,9 +161,13 @@ type GroupeGenerique {
 }
 
 enum NatureComposant {
-    "Principe actif"
+    """
+    Principe actif
+    """
     SA
-    "Fraction thérapeutique"
+    """
+    Fraction thérapeutique
+    """
     ST
 }
 
@@ -106,21 +179,25 @@ enum TypeGroupeGenerique {
 }
 
 input DateFilter {
-    "Date maximum."
+    """
+    Date maximum.
+    """
     before: Date
-    "Date minimum."
+    """
+    Date minimum.
+    """
     after: Date
 }
 
 type Query {
     medicaments(
-        codes_CIS: [ID!],
+        CIS: [ID!],
         limit: Int, 
         from: Int,
         date_AMM: DateFilter
     ): [Medicament!]!
     presentations(
-        codes_CIP7_ou_CIP13: [ID!], 
+        CIP7_ou_CIP13: [ID!], 
         limit: Int, 
         from: Int
     ): [Presentation!]!

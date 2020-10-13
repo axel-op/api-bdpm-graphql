@@ -60,37 +60,37 @@ async function buildGraph() {
     Object.keys(props).forEach(k => props[k] = data.getProperties(props[k]));
 
     let presentations = await props.presentations;
-    presentations = indexByIds(presentations, ['code_CIP7', 'code_CIP13', 'code_CIS'], [false, false, true]);
+    presentations = indexByIds(presentations, ['CIP7', 'CIP13', 'CIS'], [false, false, true]);
 
     let substances = await props.substances;
-    substances = indexByIds(substances, ['code_substance', 'code_CIS'], [true, true]);
+    substances = indexByIds(substances, ['code_substance', 'CIS'], [true, true]);
 
     let groupesGeneriques = await props.groupesGeneriques;
-    groupesGeneriques = indexByIds(groupesGeneriques, ['id', 'code_CIS'], [true, true]);
+    groupesGeneriques = indexByIds(groupesGeneriques, ['id', 'CIS'], [true, true]);
 
     let medicaments = await props.medicaments;
     medicaments.forEach(m => {
-        const codeCis = m['code_CIS'];
-        addGetter(m, 'presentations', () => presentations['code_CIS'][codeCis] || []);
-        addGetter(m, 'substances', () => substances['code_CIS'][codeCis]);
-        addGetter(m, 'groupes_generiques', () => groupesGeneriques['code_CIS'][codeCis] || []);
+        const codeCis = m['CIS'];
+        addGetter(m, 'presentations', () => presentations['CIS'][codeCis] || []);
+        addGetter(m, 'substances', () => substances['CIS'][codeCis]);
+        addGetter(m, 'groupes_generiques', () => groupesGeneriques['CIS'][codeCis] || []);
         m['conditions_prescription'] = [];
     });
-    medicaments = indexByIds(medicaments, ['code_CIS'])['code_CIS'];
-    medicaments = addFieldToIndexedObjects(medicaments, await props.conditions, 'conditions_prescription', 'code_CIS', o => o['conditions_prescription']);
+    medicaments = indexByIds(medicaments, ['CIS'])['CIS'];
+    medicaments = addFieldToIndexedObjects(medicaments, await props.conditions, 'conditions_prescription', 'CIS', o => o['conditions_prescription']);
 
-    Object.values(substances['code_CIS']).flat().forEach(s => {
+    Object.values(substances['CIS']).flat().forEach(s => {
         addGetter(s, 'substance', () => s);
-        addGetter(s, 'medicament', () => medicaments[s['code_CIS']]);
-        addGetter(s, 'medicaments', () => mapToIndex(['code_substance'][s['code_substance']], 'code_CIS', medicaments));
+        addGetter(s, 'medicament', () => medicaments[s['CIS']]);
+        addGetter(s, 'medicaments', () => mapToIndex(['code_substance'][s['code_substance']], 'CIS', medicaments));
     });
 
-    Object.values(groupesGeneriques['code_CIS']).flat().forEach(g => {
-        addGetter(g, 'medicaments', () => mapToIndex(groupesGeneriques['id'][g['id']], 'code_CIS', medicaments));
+    Object.values(groupesGeneriques['CIS']).flat().forEach(g => {
+        addGetter(g, 'medicaments', () => mapToIndex(groupesGeneriques['id'][g['id']], 'CIS', medicaments));
     });
 
-    Object.values(presentations['code_CIS']).flat().forEach(p => {
-        addGetter(p, 'medicament', () => medicaments[p['code_CIS']]);
+    Object.values(presentations['CIS']).flat().forEach(p => {
+        addGetter(p, 'medicament', () => medicaments[p['CIS']]);
     });
 
     const graph = {

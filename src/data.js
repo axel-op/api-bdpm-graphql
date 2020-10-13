@@ -16,7 +16,7 @@ const { strToDate } = require('./utils');
 
 const dbSchema = {
     [files.medicaments]: [
-        'code_CIS',
+        'CIS',
         'denomination',
         'forme_pharmaceutique',
         'voies_administration',
@@ -30,13 +30,13 @@ const dbSchema = {
         'surveillance_renforcee'
     ],
     [files.presentations]: [
-        'code_CIS',
-        'code_CIP7',
+        'CIS',
+        'CIP7',
         'libelle',
         'statut_admin',
         'etat_commercialisation',
         'date_declaration_commercialisation',
-        'code_CIP13',
+        'CIP13',
         'agrement_collectivites',
         'taux_remboursement',
         'prix_sans_honoraires',
@@ -45,7 +45,7 @@ const dbSchema = {
         'indications_remboursement'
     ],
     [files.substances]: [
-        'code_CIS',
+        'CIS',
         'designation_element_pharmaceutique',
         'code_substance',
         'denomination',
@@ -55,13 +55,13 @@ const dbSchema = {
         'numero_liaison_sa_ft'
     ],
     [files.conditions]: [
-        'code_CIS',
+        'CIS',
         'conditions_prescription'
     ],
     [files.groupesGeneriques]: [
         'id',
         'libelle',
-        'code_CIS',
+        'CIS',
         'type',
         'numero_tri'
     ],
@@ -82,10 +82,10 @@ const mappings = {
     },
     [files.groupesGeneriques]: {
         'type': n => [
-            'princeps', 
-            'generique', 
-            'generique_par_complementarite_posologique', 
-            null, 
+            'princeps',
+            'generique',
+            'generique_par_complementarite_posologique',
+            null,
             'generique_substituable'
         ][n],
     },
@@ -139,7 +139,7 @@ async function getProperties(filename) {
                 const mapping = (mappings[filename] || {})[prop];
                 p = p.trim() || null; // empty values are set to null
                 if (mapping) p = mapping(p);
-                obj[prop] = p; 
+                obj[prop] = p;
             };
             return obj;
         });

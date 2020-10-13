@@ -1,6 +1,6 @@
-# API GraphQL de la Base de Données Publique des Médicaments
+# API GraphQL pour la Base de Données Publique des Médicaments
 
-![Visualisation du graphe](./Visualization.png)
+![Visualisation du graphe](./visualization.png)
 
 Démarrer le serveur :
 
@@ -16,12 +16,12 @@ Exemple de requête :
 
 ```graphql
 {
-  medicaments(codes_CIS: [62204255]) {
-    code_CIS
+  medicaments(CIS: [62204255]) {
+    CIS
     denomination
     presentations {
-      code_CIP7
-      code_CIP13
+      CIP7
+      CIP13
       libelle
       taux_remboursement
       prix_sans_honoraires
@@ -35,12 +35,12 @@ Exemple de requête :
     }
   }
   
-  presentations(codes_CIP7_ou_CIP13: [3334167, 3400938235296]) {
-    code_CIP7
-    code_CIP13
+  presentations(CIP7_ou_CIP13: [3334167, 3400938235296]) {
+    CIP7
+    CIP13
     libelle
     medicament {
-      code_CIS
+      CIS
       denomination
     }
   }
@@ -59,20 +59,20 @@ Réponse :
   "data": {
     "medicaments": [
       {
-        "code_CIS": "62204255",
+        "CIS": "62204255",
         "denomination": "AMLODIPINE PFIZER 5 mg, gélule",
         "presentations": [
           {
-            "code_CIP7": "3334167",
-            "code_CIP13": "3400933341671",
+            "CIP7": "3334167",
+            "CIP13": "3400933341671",
             "libelle": "plaquette(s) PVC PVDC aluminium de 30 gélule(s)",
             "taux_remboursement": 65,
             "prix_sans_honoraires": 4.36,
             "prix_avec_honoraires": 5.38
           },
           {
-            "code_CIP7": "3823529",
-            "code_CIP13": "3400938235296",
+            "CIP7": "3823529",
+            "CIP13": "3400938235296",
             "libelle": "plaquette(s) PVC PVDC aluminium de 90 gélule(s)",
             "taux_remboursement": 65,
             "prix_sans_honoraires": 12.32,
@@ -97,20 +97,20 @@ Réponse :
     ],
     "presentations": [
       {
-        "code_CIP7": "3334167",
-        "code_CIP13": "3400933341671",
+        "CIP7": "3334167",
+        "CIP13": "3400933341671",
         "libelle": "plaquette(s) PVC PVDC aluminium de 30 gélule(s)",
         "medicament": {
-          "code_CIS": "62204255",
+          "CIS": "62204255",
           "denomination": "AMLODIPINE PFIZER 5 mg, gélule"
         }
       },
       {
-        "code_CIP7": "3823529",
-        "code_CIP13": "3400938235296",
+        "CIP7": "3823529",
+        "CIP13": "3400938235296",
         "libelle": "plaquette(s) PVC PVDC aluminium de 90 gélule(s)",
         "medicament": {
-          "code_CIS": "62204255",
+          "CIS": "62204255",
           "denomination": "AMLODIPINE PFIZER 5 mg, gélule"
         }
       }
@@ -225,17 +225,17 @@ Exemple de requête :
 ```graphql
 {
   page_1: presentations(limit: 3, from: 0) {
-    code_CIP7
+    CIP7
     libelle
   }
   
   page_2: presentations(limit: 3, from: 3) {
-    code_CIP7
+    CIP7
     libelle
   }
   
   pages_1_et_2: presentations(limit: 6) {
-    code_CIP7
+    CIP7
     libelle
   }
 }
@@ -248,55 +248,55 @@ Réponse :
   "data": {
     "page_1": [
       {
-        "code_CIP7": "2160191",
+        "CIP7": "2160191",
         "libelle": "plaquette(s) thermoformée(s) aluminium de 28 comprimé(s)"
       },
       {
-        "code_CIP7": "2160363",
+        "CIP7": "2160363",
         "libelle": "4 poche(s) bicompartimenté(e)(s) polymère multicouches BIOFINE de 1000 ml"
       },
       {
-        "code_CIP7": "2160417",
+        "CIP7": "2160417",
         "libelle": "flacon(s) polyéthylène haute densité (PEHD) de 28 comprimé(s)"
       }
     ],
     "page_2": [
       {
-        "code_CIP7": "2160423",
+        "CIP7": "2160423",
         "libelle": "flacon(s) polyéthylène haute densité (PEHD) de 14 comprimé(s)"
       },
       {
-        "code_CIP7": "2160469",
+        "CIP7": "2160469",
         "libelle": "1 flacon(s) polyéthylène de 5 ml avec compte-gouttes"
       },
       {
-        "code_CIP7": "2160908",
+        "CIP7": "2160908",
         "libelle": "4 seringue(s) préremplie(s) en verre de 0,5 ml dans stylo pré-rempli"
       }
     ],
     "pages_1_et_2": [
       {
-        "code_CIP7": "2160191",
+        "CIP7": "2160191",
         "libelle": "plaquette(s) thermoformée(s) aluminium de 28 comprimé(s)"
       },
       {
-        "code_CIP7": "2160363",
+        "CIP7": "2160363",
         "libelle": "4 poche(s) bicompartimenté(e)(s) polymère multicouches BIOFINE de 1000 ml"
       },
       {
-        "code_CIP7": "2160417",
+        "CIP7": "2160417",
         "libelle": "flacon(s) polyéthylène haute densité (PEHD) de 28 comprimé(s)"
       },
       {
-        "code_CIP7": "2160423",
+        "CIP7": "2160423",
         "libelle": "flacon(s) polyéthylène haute densité (PEHD) de 14 comprimé(s)"
       },
       {
-        "code_CIP7": "2160469",
+        "CIP7": "2160469",
         "libelle": "1 flacon(s) polyéthylène de 5 ml avec compte-gouttes"
       },
       {
-        "code_CIP7": "2160908",
+        "CIP7": "2160908",
         "libelle": "4 seringue(s) préremplie(s) en verre de 0,5 ml dans stylo pré-rempli"
       }
     ]

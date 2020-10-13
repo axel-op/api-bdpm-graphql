@@ -41,9 +41,9 @@ async function main() {
 
     // The root provides the top-level API endpoints
     const root = {
-        medicaments: ({ codes_CIS, from, limit, date_AMM }) => {
-            let results = codes_CIS
-                ? getFromIndex(medicaments, codes_CIS)
+        medicaments: ({ CIS, from, limit, date_AMM }) => {
+            let results = CIS
+                ? getFromIndex(medicaments, CIS)
                 : sortValuesByKey(medicaments);
             if (date_AMM) {
                 const filter = getDateFilter(date_AMM);
@@ -51,10 +51,10 @@ async function main() {
             }
             return slice(results, from, limit);
         },
-        presentations: ({ codes_CIP7_ou_CIP13, from, limit }) => {
-            const results = codes_CIP7_ou_CIP13
-                ? getFromIndex({ ...presentations['code_CIP7'], ...presentations['code_CIP13'] }, codes_CIP7_ou_CIP13)
-                : sortValuesByKey(presentations['code_CIP7']);
+        presentations: ({ CIP7_ou_CIP13, from, limit }) => {
+            const results = CIP7_ou_CIP13
+                ? getFromIndex({ ...presentations['CIP7'], ...presentations['CIP13'] }, CIP7_ou_CIP13)
+                : sortValuesByKey(presentations['CIP7']);
             return slice(results, from, limit);
         },
         substances: ({ codes_substances, from, limit }) => {
