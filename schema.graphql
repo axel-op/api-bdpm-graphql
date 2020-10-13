@@ -43,7 +43,7 @@ type Presentation {
     etat_commercialisation: String
     "Date de la déclaration de commercialisation, au format `DD/MM/YYYY`."
     date_declaration_commercialisation: Date
-    "Agrément aux collectivités. Valeurs possibles : `oui`, `non`, `inconnu`."
+    "Agrément aux collectivités. `null` si inconnu."
     agrement_collectivites: Boolean
     "Taux de remboursement par l'Assurance Maladie."
     taux_remboursement: Int
@@ -79,7 +79,7 @@ type SubstanceConcrete {
     "Le dénominateur par rapport auquel est calculé le dosage."
     reference_dosage: String
     "`SA` pour principe actif, `ST` pour fraction thérapeutique."
-    nature_composant: String!
+    nature_composant: NatureComposant!
     "Le médicament contenant cette substance."
     medicament: Medicament!
 }
@@ -89,6 +89,13 @@ type GroupeGenerique {
     libelle: String!
     type: TypeGroupeGenerique!
     medicaments: [Medicament!]!
+}
+
+enum NatureComposant {
+    "Principe actif"
+    SA
+    "Fraction thérapeutique"
+    ST
 }
 
 enum TypeGroupeGenerique {
