@@ -1,5 +1,7 @@
 # API GraphQL de la Base de Données Publique des Médicaments
 
+![Visualisation du graphe](./Visualization.png)
+
 Démarrer le serveur :
 
 ```bash
