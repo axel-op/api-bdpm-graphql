@@ -28,6 +28,19 @@ function addFieldToIndexedObjects(index, from, field, id, map) {
     return index;
 }
 
+function keepFirstElementOfArrayValues(object) {
+    return Object.keys(object).reduce((newObj, key) => {
+        newObj[key] = object[key][0];
+        return newObj;
+    }, {});
+}
+
+function mapToIndex(array, key, index) {
+    let keys = array.map(o => o[key]);
+    keys = Array.from(new Set(keys));
+    return keys.sort().map(k => index[k]).filter(e => e);
+}
+
 function addGetter(object, field, getter) {
     Object.defineProperty(object, field, { get: getter });
 }
@@ -51,10 +64,18 @@ async function buildGraph() {
         'code_CIS': indexById(substances, 'code_CIS', true),
     }
 
+    let groupesGeneriques = await props.groupesGeneriques;
+    groupesGeneriques = {
+        'id': indexById(groupesGeneriques, 'id', true),
+        'code_CIS': indexById(groupesGeneriques, 'code_CIS', true),
+    }
+
     let medicaments = await props.medicaments;
     medicaments.forEach(m => {
-        addGetter(m, 'presentations', () => presentations['code_CIS'][m['code_CIS']])
-        addGetter(m, 'substances', () => substances['code_CIS'][m['code_CIS']])
+        const codeCis = m['code_CIS'];
+        addGetter(m, 'presentations', () => presentations['code_CIS'][codeCis]);
+        addGetter(m, 'substances', () => substances['code_CIS'][codeCis]);
+        addGetter(m, 'groupes_generiques', () => groupesGeneriques['code_CIS'][codeCis] || []);
         m['conditions_prescription'] = [];
     });
     medicaments = indexById(medicaments, 'code_CIS');
@@ -63,11 +84,11 @@ async function buildGraph() {
     Object.values(substances['code_CIS']).flat().forEach(s => {
         addGetter(s, 'substance', () => s);
         addGetter(s, 'medicament', () => medicaments[s['code_CIS']]);
-        addGetter(s, 'medicaments', () => {
-            let codesCis = substances['code_substance'][s['code_substance']].map(s => s['code_CIS']);
-            codesCis = Array.from(new Set(codesCis)).sort();
-            return codesCis.map(c => medicaments[c]);
-        });
+        addGetter(s, 'medicaments', () => mapToIndex(['code_substance'][s['code_substance']], 'code_CIS', medicaments));
+    });
+
+    Object.values(groupesGeneriques['code_CIS']).flat().forEach(g => {
+        addGetter(g, 'medicaments', () => mapToIndex(groupesGeneriques['id'][g['id']], 'code_CIS', medicaments));
     });
     
     Object.values(presentations['code_CIS']).flat().forEach(p => {
@@ -75,12 +96,10 @@ async function buildGraph() {
     });
 
     const graph = {
-        'substances': Object.keys(substances['code_substance']).reduce((o, code) => {
-            o[code] = substances['code_substance'][code][0];
-            return o;
-        }, {}),
+        'substances': keepFirstElementOfArrayValues(substances['code_substance']),
         'medicaments': medicaments,
         'presentations': presentations,
+        'groupes_generiques': keepFirstElementOfArrayValues(groupesGeneriques['id']),
     };
     console.timeEnd('Graph built');
     return graph;

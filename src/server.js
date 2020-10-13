@@ -33,6 +33,7 @@ async function main() {
     const medicaments = graph['medicaments'];
     const presentations = graph['presentations'];
     const substances = graph['substances'];
+    const groupesGeneriques = graph['groupes_generiques'];
 
     // Construct a schema, using GraphQL schema language
     const schema = buildSchema(fs.readFileSync(path.resolve(__dirname, '..', 'schema.graphql'), 'utf-8'));
@@ -40,7 +41,7 @@ async function main() {
 
     // The root provides the top-level API endpoints
     const root = {
-        medicaments: async ({ codes_CIS, from, limit, date_AMM }) => {
+        medicaments: ({ codes_CIS, from, limit, date_AMM }) => {
             let results = codes_CIS
                 ? getFromIndex(medicaments, codes_CIS)
                 : sortValuesByKey(medicaments);
@@ -50,16 +51,23 @@ async function main() {
             }
             return slice(results, from, limit);
         },
-        presentations: async ({ codes_CIP7_ou_CIP13, from, limit }) => {
+        presentations: ({ codes_CIP7_ou_CIP13, from, limit }) => {
             const results = codes_CIP7_ou_CIP13
                 ? getFromIndex({ ...presentations['CIP7'], ...presentations['CIP13'] }, codes_CIP7_ou_CIP13)
                 : sortValuesByKey(presentations['CIP7']);
             return slice(results, from, limit);
         },
-        substances: async ({ codes_substances, from, limit }) => {
+        substances: ({ codes_substances, from, limit }) => {
             const results = codes_substances
                 ? getFromIndex(substances, codes_substances)
                 : sortValuesByKey(substances);
+            return slice(results, from, limit);
+        },
+        groupes_generiques: ({ ids, from, limit, type }) => {
+            let results = ids
+                ? getFromIndex(groupesGeneriques, ids)
+                : sortValuesByKey(groupesGeneriques);
+            if (type) results = results.filter(g => g['type'] === type);
             return slice(results, from, limit);
         },
     }

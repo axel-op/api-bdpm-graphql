@@ -3,6 +3,7 @@ const files = {
     presentations: 'CIS_CIP_bdpm',
     conditions: 'CIS_CPD_bdpm',
     substances: 'CIS_COMPO_bdpm',
+    groupesGeneriques: 'CIS_GENER_bdpm',
 };
 
 module.exports = {
@@ -57,6 +58,13 @@ const dbSchema = {
         'code_CIS',
         'conditions_prescription'
     ],
+    [files.groupesGeneriques]: [
+        'id',
+        'libelle',
+        'code_CIS',
+        'type',
+        'numero_tri'
+    ],
 };
 
 const mappings = {
@@ -71,7 +79,16 @@ const mappings = {
         'prix_sans_honoraires': formatFloatNumber,
         'prix_avec_honoraires': formatFloatNumber,
         'honoraires': formatFloatNumber,
-    }
+    },
+    [files.groupesGeneriques]: {
+        'type': n => [
+            'princeps', 
+            'generique', 
+            'generique_par_complementarite_posologique', 
+            null, 
+            'generique_substituable'
+        ][n],
+    },
 }
 
 function ouiNonToBooleans(value) {

@@ -28,6 +28,7 @@ type Medicament {
     presentations: [Presentation!]!
     "Les substances que le médicament contient."
     substances: [SubstanceConcrete!]!
+    groupes_generiques: [GroupeGenerique!]!
 }
 
 type Presentation {
@@ -83,6 +84,20 @@ type SubstanceConcrete {
     medicament: Medicament!
 }
 
+type GroupeGenerique {
+    id: ID!
+    libelle: String!
+    type: TypeGroupeGenerique!
+    medicaments: [Medicament!]!
+}
+
+enum TypeGroupeGenerique {
+    princeps
+    generique
+    generique_par_complementarite_posologique
+    generique_substituable
+}
+
 input DateFilter {
     "Date maximum."
     before: Date
@@ -94,7 +109,7 @@ type Query {
     medicaments(
         codes_CIS: [ID!],
         limit: Int, 
-        from: Int
+        from: Int,
         date_AMM: DateFilter
     ): [Medicament!]!
     presentations(
@@ -107,4 +122,10 @@ type Query {
         limit: Int, 
         from: Int
     ): [Substance!]!
+    groupes_generiques(
+        ids: [ID!],
+        limit: Int,
+        from: Int,
+        type: TypeGroupeGenerique
+    ): [GroupeGenerique!]!
 }
