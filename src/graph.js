@@ -82,7 +82,7 @@ async function buildGraph() {
     Object.values(substances['CIS']).flat().forEach(s => {
         addGetter(s, 'substance', () => s);
         addGetter(s, 'medicament', () => medicaments[s['CIS']]);
-        addGetter(s, 'medicaments', () => mapToIndex(['code_substance'][s['code_substance']], 'CIS', medicaments));
+        addGetter(s, 'medicaments', () => mapToIndex(substances['code_substance'][s['code_substance']], 'CIS', medicaments));
     });
 
     Object.values(groupesGeneriques['CIS']).flat().forEach(g => {
