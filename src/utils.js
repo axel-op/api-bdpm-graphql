@@ -4,11 +4,18 @@ module.exports = {
 }
 
 function strToDate(str) {
-    const regex = /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/
-    if (!regex.test(str)) throw new Error(`Format error: "${str}". Expected format: DD/MM/YYYY.`);
-    const match = str.match(regex);
-    const date = new Date(match[3], match[2] - 1, match[1]);
-    return date;
+    const regexes = [
+        /^(?<day>[0-9]{2})\/(?<month>[0-9]{2})\/(?<year>[0-9]{4})$/,
+        /^(?<day>[0-9]{2})-(?<month>[0-9]{2})-(?<year>[0-9]{4})$/,
+        /^(?<year>[0-9]{4})-(?<month>[0-9]{2})-(?<day>[0-9]{2})$/,
+    ];
+    for (let regex of regexes) {
+        if (regex.test(str)) {
+            const groups = str.match(regex).groups;
+            return new Date(groups['year'], groups['month'] - 1, groups['day']);
+        }
+    }
+    throw new Error(`The format of this date is not accepted: "${str}".`);
 }
 
 function dateToStr(date) {

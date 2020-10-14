@@ -1,3 +1,9 @@
+"""
+Une date peut avoir un de ces formats :
+- `DD/MM/YYYY`
+- `DD-MM-YYYY`
+- `YYYY-MM-DD`
+"""
 scalar Date
 
 type Medicament {

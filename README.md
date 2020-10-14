@@ -301,6 +301,12 @@ Le paramètre `date_AMM` est [de type `DateFilter`](./schema.graphql) et a deux 
 
 Spécifier une même date pour les deux propriétés renverra les médicaments mis sur le marché à cette date exactement.
 
+Une date doit avoir un des formats suivants :
+
+- `DD/MM/YYYY`
+- `DD-MM-YYYY`
+- `YYYY-MM-DD`
+
 Exemple :
 
 ```graphql
