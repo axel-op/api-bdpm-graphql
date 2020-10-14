@@ -81,7 +81,7 @@ async function buildGraph() {
     medicaments.forEach(m => {
         const codeCis = m['CIS'];
         addGetter(m, 'presentations', () => presentations['CIS'][codeCis] || []);
-        addGetter(m, 'substances', () => substances['CIS'][codeCis]);
+        addGetter(m, 'substances', () => substances['CIS'][codeCis] || []);
         addGetter(m, 'groupes_generiques', () => groupesGeneriques['CIS'][codeCis] || []);
         m['conditions_prescription'] = [];
     });
