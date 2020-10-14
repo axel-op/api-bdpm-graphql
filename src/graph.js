@@ -3,6 +3,7 @@ module.exports = {
 }
 
 const data = require('./data.js');
+const { removeLeadingZeros } = require('./utils.js');
 
 function indexByIds(objects, ids, accumulate) {
     return objects.reduce(
@@ -53,6 +54,10 @@ function addGetter(object, field, getter) {
     Object.defineProperty(object, field, { get: getter });
 }
 
+function removeLeadingZerosOfFields(objects, fields) {
+    objects.forEach(o => fields.forEach(f => o[f] = removeLeadingZeros(o[f])));
+}
+
 async function buildGraph() {
     console.log('Building graph...');
     console.time('Graph built');
@@ -60,15 +65,19 @@ async function buildGraph() {
     Object.keys(props).forEach(k => props[k] = data.getProperties(props[k]));
 
     let presentations = await props.presentations;
+    removeLeadingZerosOfFields(presentations, ['CIS']);
     presentations = indexByIds(presentations, ['CIP7', 'CIP13', 'CIS'], [false, false, true]);
 
     let substances = await props.substances;
+    removeLeadingZerosOfFields(substances, ['code_substance', 'CIS']);
     substances = indexByIds(substances, ['code_substance', 'CIS'], [true, true]);
 
     let groupesGeneriques = await props.groupesGeneriques;
+    removeLeadingZerosOfFields(groupesGeneriques, ['CIS']);
     groupesGeneriques = indexByIds(groupesGeneriques, ['id', 'CIS'], [true, true]);
 
     let medicaments = await props.medicaments;
+    removeLeadingZerosOfFields(medicaments, ['CIS']);
     medicaments.forEach(m => {
         const codeCis = m['CIS'];
         addGetter(m, 'presentations', () => presentations['CIS'][codeCis] || []);

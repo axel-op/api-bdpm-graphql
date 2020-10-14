@@ -5,6 +5,7 @@ const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
 const { types } = require('./types.js');
 const { getDateFilter } = require('./filters.js');
+const { removeLeadingZeros } = require('./utils.js');
 
 function getFromIndex(index, keys) {
     const results = [];
@@ -43,7 +44,7 @@ async function main() {
     const root = {
         medicaments: ({ CIS, from, limit, date_AMM }) => {
             let results = CIS
-                ? getFromIndex(medicaments, CIS)
+                ? getFromIndex(medicaments, CIS.map(c => removeLeadingZeros(c)))
                 : sortValuesByKey(medicaments);
             if (date_AMM) {
                 const filter = getDateFilter(date_AMM);
@@ -59,7 +60,7 @@ async function main() {
         },
         substances: ({ codes_substances, from, limit }) => {
             const results = codes_substances
-                ? getFromIndex(substances, codes_substances)
+                ? getFromIndex(substances, codes_substances.map(c => removeLeadingZeros(c)))
                 : sortValuesByKey(substances);
             return slice(results, from, limit);
         },

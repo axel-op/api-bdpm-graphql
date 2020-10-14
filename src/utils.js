@@ -1,6 +1,7 @@
 module.exports = {
     strToDate,
     dateToStr,
+    removeLeadingZeros,
 }
 
 function strToDate(str) {
@@ -28,4 +29,10 @@ function dateToStr(date) {
     const month = numberToStr(date.getMonth() + 1);
     const year = numberToStr(date.getFullYear(), 4);
     return `${day}/${month}/${year}`;
+}
+
+function removeLeadingZeros(str) {
+    const replaced = str.replace(/^[0]+/g, "");
+    if (replaced.length === 0) throw new Error(`Incorrect string: ${str}`);
+    return replaced;
 }

@@ -63,7 +63,7 @@ Demander une substance à partir de son code, sa dénomination, et tous les méd
 
 ```graphql
 {
-  substances(codes_substances: ["04034"]) {
+  substances(codes_substances: ["4034"]) {
     denomination
     medicaments {
       denomination
@@ -445,7 +445,7 @@ Les requêtes peuvent être très imbriquées. Par exemple, en partant d'une sub
 
 ```graphql
 {
-  substances(codes_substances: ["01743"]) {
+  substances(codes_substances: ["1743"]) {
     denomination
     medicaments {
       denomination
