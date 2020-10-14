@@ -56,7 +56,7 @@ async function main() {
             dateFilters: ['date_AMM'],
         }),
         presentations: (args) => resolve(args, {
-            ids: args.CIP7_ou_CIP13,
+            ids: args.CIP,
             indexes: Object.values(presentations),
         }),
         substances: (args) => resolve(args, {

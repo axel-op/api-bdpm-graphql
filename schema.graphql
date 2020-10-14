@@ -203,7 +203,7 @@ type Query {
         date_AMM: DateFilter
     ): [Medicament!]!
     presentations(
-        CIP7_ou_CIP13: [ID!], 
+        CIP: [ID!],
         limit: Int, 
         from: Int
     ): [Presentation!]!
