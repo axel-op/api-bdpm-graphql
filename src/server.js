@@ -4,19 +4,10 @@ const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
 const { types } = require('./types.js');
-const { getDateFilter } = require('./filters.js');
+const { applyDateFilters } = require('./filters.js');
 const { removeLeadingZeros } = require('./utils.js');
 
-function getFromIndex(index, keys) {
-    const results = [];
-    keys.forEach(k => {
-        const v = index[k];
-        if (v) results.push(v);
-    });
-    return results;
-}
-
-function sortValuesByKey(object) {
+function getValuesBySortedKey(object) {
     return Object.keys(object)
         .sort()
         .map(k => object[k]);
@@ -26,6 +17,23 @@ function slice(array, from, limit) {
     if (!from) from = 0;
     if (from >= array.length) return [];
     return array.slice(from, limit ? from + limit : limit);
+}
+
+function resolve(args, {
+    ids,
+    indexes,
+    dateFilters,
+    enumFilters,
+} = {}) {
+    let results = ids
+        ? ids.map(id => (indexes.find(index => id in index) || {})[id]).filter(o => o)
+        : getValuesBySortedKey(indexes[0]);
+    if (dateFilters) results = applyDateFilters(results, dateFilters.map(a => args[a]), dateFilters);
+    if (enumFilters) results = results.filter(r => {
+        for (let e of enumFilters) if (args[e] && args[e] !== r[e]) return false;
+        return true;
+    })
+    return slice(results, args.from, args.limit);
 }
 
 async function main() {
@@ -38,39 +46,28 @@ async function main() {
 
     // Construct a schema, using GraphQL schema language
     const schema = buildSchema(fs.readFileSync(path.resolve(__dirname, '..', 'schema.graphql'), 'utf-8'));
-    Object.assign(schema._typeMap.Date, types.Date)
+    Object.keys(types).forEach(t => Object.assign(schema._typeMap[t], types[t]));
 
     // The root provides the top-level API endpoints
     const root = {
-        medicaments: ({ CIS, from, limit, date_AMM }) => {
-            let results = CIS
-                ? getFromIndex(medicaments, CIS.map(c => removeLeadingZeros(c)))
-                : sortValuesByKey(medicaments);
-            if (date_AMM) {
-                const filter = getDateFilter(date_AMM);
-                results = results.filter(o => filter(o['date_AMM']));
-            }
-            return slice(results, from, limit);
-        },
-        presentations: ({ CIP7_ou_CIP13, from, limit }) => {
-            const results = CIP7_ou_CIP13
-                ? getFromIndex({ ...presentations['CIP7'], ...presentations['CIP13'] }, CIP7_ou_CIP13)
-                : sortValuesByKey(presentations['CIP7']);
-            return slice(results, from, limit);
-        },
-        substances: ({ codes_substances, from, limit }) => {
-            const results = codes_substances
-                ? getFromIndex(substances, codes_substances.map(c => removeLeadingZeros(c)))
-                : sortValuesByKey(substances);
-            return slice(results, from, limit);
-        },
-        groupes_generiques: ({ ids, from, limit, type }) => {
-            let results = ids
-                ? getFromIndex(groupesGeneriques, ids)
-                : sortValuesByKey(groupesGeneriques);
-            if (type) results = results.filter(g => g['type'] === type);
-            return slice(results, from, limit);
-        },
+        medicaments: (args) => resolve(args, {
+            ids: args.CIS ? args.CIS.map(c => removeLeadingZeros(c)) : null,
+            indexes: [medicaments],
+            dateFilters: ['date_AMM'],
+        }),
+        presentations: (args) => resolve(args, {
+            ids: args.CIP7_ou_CIP13,
+            indexes: Object.values(presentations),
+        }),
+        substances: (args) => resolve(args, {
+            ids: args.codes_substances ? args.codes_substances.map(c => removeLeadingZeros(c)) : null,
+            indexes: [substances],
+        }),
+        groupes_generiques: (args) => resolve(args, {
+            ids: args.ids,
+            indexes: [groupesGeneriques],
+            enumFilters: ['type'],
+        }),
     }
 
     const app = express();
