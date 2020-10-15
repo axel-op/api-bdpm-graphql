@@ -195,27 +195,40 @@ input DateFilter {
     after: Date
 }
 
+input StringFilter {
+    contains_one_of: [String!]
+    contains_all: [String!]
+    starts_with_one_of: [String!]
+    ends_with_one_of: [String!]
+}
+
 type Query {
     medicaments(
         CIS: [ID!],
         limit: Int, 
         from: Int,
-        date_AMM: DateFilter
+        date_AMM: DateFilter,
+        denomination: StringFilter,
+        forme_pharmaceutique: StringFilter,
+        voies_administration: StringFilter
     ): [Medicament!]!
     presentations(
         CIP: [ID!],
         limit: Int, 
-        from: Int
+        from: Int,
+        libelle: StringFilter
     ): [Presentation!]!
     substances(
         codes_substances: [ID!], 
         limit: Int, 
-        from: Int
+        from: Int,
+        denomination: StringFilter
     ): [Substance!]!
     groupes_generiques(
         ids: [ID!],
         limit: Int,
         from: Int,
-        type: TypeGroupeGenerique
+        type: TypeGroupeGenerique,
+        libelle: StringFilter
     ): [GroupeGenerique!]!
 }

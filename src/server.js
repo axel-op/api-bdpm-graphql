@@ -4,7 +4,7 @@ const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
 const { types } = require('./types.js');
-const { applyDateFilters } = require('./filters.js');
+const { applyDateFilters, applyStringFilters } = require('./filters.js');
 const { removeLeadingZeros } = require('./utils.js');
 
 function getValuesBySortedKey(object) {
@@ -24,11 +24,13 @@ function resolve(args, {
     indexes,
     dateFilters,
     enumFilters,
+    stringFilters,
 } = {}) {
     let results = ids
         ? ids.map(id => (indexes.find(index => id in index) || {})[id]).filter(o => o)
         : getValuesBySortedKey(indexes[0]);
     if (dateFilters) results = applyDateFilters(results, dateFilters.map(a => args[a]), dateFilters);
+    if (stringFilters) results = applyStringFilters(results, stringFilters.map(a => args[a]), stringFilters);
     if (enumFilters) results = results.filter(r => {
         for (let e of enumFilters) if (args[e] && args[e] !== r[e]) return false;
         return true;
@@ -54,19 +56,23 @@ async function main() {
             ids: args.CIS ? args.CIS.map(c => removeLeadingZeros(c)) : null,
             indexes: [medicaments],
             dateFilters: ['date_AMM'],
+            stringFilters: ['denomination', 'forme_pharmaceutique', 'voies_administration'],
         }),
         presentations: (args) => resolve(args, {
             ids: args.CIP,
             indexes: Object.values(presentations),
+            stringFilters: ['libelle'],
         }),
         substances: (args) => resolve(args, {
             ids: args.codes_substances ? args.codes_substances.map(c => removeLeadingZeros(c)) : null,
             indexes: [substances],
+            stringFilters: ['denomination'],
         }),
         groupes_generiques: (args) => resolve(args, {
             ids: args.ids,
             indexes: [groupesGeneriques],
             enumFilters: ['type'],
+            stringFilters: ['libelle'],
         }),
     }
 
