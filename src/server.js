@@ -19,13 +19,20 @@ function slice(array, from, limit) {
     return array.slice(from, limit ? from + limit : limit);
 }
 
-function resolve(args, {
+function findArgsOfType(schema, query, type) {
+    return Object
+        .values(schema['_queryType']['_fields'][query]['args'])
+        .filter(a => a['type']['name'] === type)
+        .map(a => a['name']);
+}
+
+function resolve(schema, query, args, {
     ids,
     indexes,
-    dateFilters,
     enumFilters,
-    stringFilters,
 } = {}) {
+    const dateFilters = findArgsOfType(schema, query, 'DateFilter');
+    const stringFilters = findArgsOfType(schema, query, 'StringFilter');
     let results = ids
         ? ids.map(id => (indexes.find(index => id in index) || {})[id]).filter(o => o)
         : getValuesBySortedKey(indexes[0]);
@@ -52,27 +59,22 @@ async function main() {
 
     // The root provides the top-level API endpoints
     const root = {
-        medicaments: (args) => resolve(args, {
+        medicaments: (args) => resolve(schema, 'medicaments', args, {
             ids: args.CIS ? args.CIS.map(c => removeLeadingZeros(c)) : null,
             indexes: [medicaments],
-            dateFilters: ['date_AMM'],
-            stringFilters: ['denomination', 'forme_pharmaceutique', 'voies_administration'],
         }),
-        presentations: (args) => resolve(args, {
+        presentations: (args) => resolve(schema, 'presentations', args, {
             ids: args.CIP,
             indexes: Object.values(presentations),
-            stringFilters: ['libelle'],
         }),
-        substances: (args) => resolve(args, {
+        substances: (args) => resolve(schema, 'substances', args, {
             ids: args.codes_substances ? args.codes_substances.map(c => removeLeadingZeros(c)) : null,
             indexes: [substances],
-            stringFilters: ['denomination'],
         }),
-        groupes_generiques: (args) => resolve(args, {
+        groupes_generiques: (args) => resolve(schema, 'groupes_generiques', args, {
             ids: args.ids,
             indexes: [groupesGeneriques],
             enumFilters: ['type'],
-            stringFilters: ['libelle'],
         }),
     }
 
