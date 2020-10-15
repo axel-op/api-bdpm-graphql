@@ -210,13 +210,21 @@ type Query {
         date_AMM: DateFilter,
         denomination: StringFilter,
         forme_pharmaceutique: StringFilter,
-        voies_administration: StringFilter
+        voies_administration: StringFilter,
+        statut_admin_AMM: StringFilter,
+        type_procedure_AMM: StringFilter,
+        etat_commercialisation: StringFilter,
+        statut_BDM: StringFilter,
+        numero_autorisation_europeenne: StringFilter
     ): [Medicament!]!
     presentations(
         CIP: [ID!],
         limit: Int, 
         from: Int,
-        libelle: StringFilter
+        libelle: StringFilter,
+        statut_admin: StringFilter,
+        etat_commercialisation: StringFilter,
+        indications_remboursement: StringFilter
     ): [Presentation!]!
     substances(
         codes_substances: [ID!], 

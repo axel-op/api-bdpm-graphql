@@ -7,7 +7,7 @@ function applyFilters(objects, filters, fields, filterFunction) {
     return objects.filter(object => {
         for (let i = 0; i < filters.length; i++) {
             const filter = filters[i];
-            if (!filter) continue;
+            if (!filter || Object.keys(filter).length === 0) continue;
             if (!filterFunction(filter, object[fields[i]])) return false;
         }
         return true;
@@ -23,6 +23,7 @@ function applyDateFilters(objects, filters, fields) {
 
 function applyStringFilters(objects, filters, fields) {
     return applyFilters(objects, filters, fields, (f, str) => {
+        if (!str) return false;
         str = str.toLowerCase();
         if (f['contains_one_of']
             && !f['contains_one_of'].find(s => str.includes(s.toLowerCase()))
