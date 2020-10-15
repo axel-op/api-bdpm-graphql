@@ -79,6 +79,7 @@ const mappings = {
         'prix_sans_honoraires': formatFloatNumber,
         'prix_avec_honoraires': formatFloatNumber,
         'honoraires': formatFloatNumber,
+        'date_declaration_commercialisation': v => v ? strToDate(v) : v,
     },
     [files.groupesGeneriques]: {
         'type': n => [
