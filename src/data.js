@@ -129,7 +129,7 @@ function readFile(filename) {
 };
 
 async function getProperties(filename) {
-    let content = await readFile(filename);
+    const content = await readFile(filename);
     return content
         .split(/\r?\n/)
         .filter(line => line) // we ignore empty lines

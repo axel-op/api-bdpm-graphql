@@ -19,7 +19,7 @@ curl http://localhost:4000/graphql -H "Content-Type: application/graphql" -d "{ 
 curl http://localhost:4000/graphql -H "Content-Type: application/graphql" -d @requete.graphql
 ```
 
-## Exemples de requêtes
+## Guide
 
 Le schéma complet est disponible dans [`schema.graphql`](./schema.graphql).
 
