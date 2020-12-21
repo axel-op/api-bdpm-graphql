@@ -13,7 +13,7 @@ node src/server.js
 Une fois le serveur démarré, les requêtes (HTTP POST) peuvent être envoyées à [`localhost:4000/graphql`](http://localhost:4000/graphql) (accéder à cette adresse depuis un navigateur affichera une interface graphique).
 
 ```bash
-curl http://localhost:4000/graphql -H "Content-Type: application/graphql" -d "{ medicaments(CIS: [62204255]) { denomination } }"
+curl http://localhost:4000/graphql -H "Content-Type: application/graphql" -d "query { medicaments(CIS: [62204255]) { denomination } }"
 
 # Si la requête GraphQL est contenue dans le fichier "requete.graphql" :
 curl http://localhost:4000/graphql -H "Content-Type: application/graphql" -d @requete.graphql
@@ -28,7 +28,7 @@ Le schéma complet est disponible dans [`schema.graphql`](./schema.graphql).
 Demander un médicament à partir de son CIS (Code Identifiant de Spécialité), sa dénomination, les substances qu'il contient avec leur code et leur dénomination :
 
 ```graphql
-{
+query {
   medicaments(CIS: ["68572075"]) {
     denomination
     substances {
@@ -49,7 +49,7 @@ Réponse :
         "denomination": "FAMOTIDINE MYLAN 20 mg, comprimé pelliculé",
         "substances": [
           {
-            "code_substance": "04034",
+            "code_substance": "4034",
             "denomination": "FAMOTIDINE"
           }
         ]
@@ -62,7 +62,7 @@ Réponse :
 Demander une substance à partir de son code, sa dénomination, et tous les médicaments qui la contiennent avec leur dénomination :
 
 ```graphql
-{
+query {
   substances(codes_substances: ["4034"]) {
     denomination
     medicaments {
@@ -103,7 +103,7 @@ Réponse :
 Demander un groupe générique à partir de son identifiant, et son ou ses médicament(s) princeps, avec pour chaque médicament leur dénomination et celle de leurs substances :
 
 ```graphql
-{
+query {
   groupes_generiques(ids: ["101"]) {
     libelle
     princeps {
@@ -159,7 +159,7 @@ Réponse :
 Demander tous les médicaments avec leur dénomination, et toutes les substances avec leur dénomination (l'argument `limit` permet de limiter le nombre de résultats) :
 
 ```graphql
-{
+query {
   medicaments(limit: 3) {
     denomination
   }
@@ -213,21 +213,26 @@ Il est possible d'effectuer une requête paginée avec les arguments `from` et `
 Exemple :
 
 ```graphql
-{
-  page_1: presentations(limit: 3, from: 0) {
-    CIP7
-    libelle
+query {
+  page_1:
+  presentations(limit: 3, from: 0) {
+    ...champs
   }
-  
-  page_2: presentations(limit: 3, from: 3) {
-    CIP7
-    libelle
+
+  page_2:
+  presentations(limit: 3, from: 3) {
+    ...champs
   }
-  
-  pages_1_et_2: presentations(limit: 6) {
-    CIP7
-    libelle
+
+  pages_1_et_2:
+  presentations(limit: 6) {
+    ...champs
   }
+}
+
+fragment champs on Presentation {
+  CIP7
+  libelle
 }
 ```
 
@@ -314,36 +319,37 @@ Une date doit avoir un des formats suivants :
 Exemple :
 
 ```graphql
-{
+query {
   dateAvant: medicaments(
     date_AMM: {before: "22/12/1999"},
     limit: 2
   ) {
-    denomination
-    date_AMM
+    ...champs
   }
   
   dateApres: medicaments(
     date_AMM: {after: "22/12/1999"},
     limit: 2
   ) {
-    denomination
-    date_AMM
+    ...champs
   }
   
   dateExacte: medicaments(
     date_AMM: {after: "22/12/1999", before: "22/12/1999"}
   ) {
-    denomination
-    date_AMM
+    ...champs
   }
   
   periode: medicaments(
     date_AMM: {after: "01/11/1999", before: "08/11/1999"}
   ) {
-    denomination
-    date_AMM
+    ...champs
   }
+}
+
+fragment champs on Medicament {
+  denomination
+  date_AMM
 }
 ```
 
@@ -401,7 +407,7 @@ Réponse :
 Demander un médicament à partir de son CIS, et les présentations sous lesquelles il est vendu, associées à plusieurs caractéristiques :
 
 ```graphql
-{
+query {
   medicaments(CIS: ["62204255"]) {
     denomination
     presentations {
@@ -448,7 +454,7 @@ Réponse :
 Demander les médicaments princeps et génériques, associés au prix de leurs présentations, du groupe générique "AZANTAC 150 mg cp effervescent" :
 
 ```graphql
-{
+query {
   groupes_generiques(
     libelle: {contains_all: ["azantac 150 mg", "effervescent"]}
   ) {
@@ -533,7 +539,7 @@ Réponse :
 Les requêtes peuvent être très imbriquées. Par exemple, en partant d'une substance, il est possible de demander la liste des médicaments qui la contiennent, et pour chaque médicament, les présentations sous lesquelles ils sont vendus :
 
 ```graphql
-{
+query {
   substances(codes_substances: ["1743"]) {
     denomination
     medicaments {
