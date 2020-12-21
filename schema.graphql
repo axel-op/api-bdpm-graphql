@@ -162,8 +162,10 @@ type SubstanceConcrete {
 type GroupeGenerique {
     id: ID!
     libelle: String!
-    type: TypeGroupeGenerique!
-    medicaments: [Medicament!]!
+    princeps: [Medicament!]!
+    generiques: [Medicament!]!
+    generiques_complementarite_posologique: [Medicament!]!
+    generiques_substituables: [Medicament!]!
 }
 
 enum NatureComposant {
@@ -175,13 +177,6 @@ enum NatureComposant {
     Fraction thérapeutique
     """
     ST
-}
-
-enum TypeGroupeGenerique {
-    princeps
-    generique
-    generique_par_complementarite_posologique
-    generique_substituable
 }
 
 input DateFilter {
@@ -236,7 +231,6 @@ type Query {
         ids: [ID!],
         limit: Int,
         from: Int,
-        type: TypeGroupeGenerique,
         libelle: StringFilter
     ): [GroupeGenerique!]!
 }

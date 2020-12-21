@@ -100,14 +100,13 @@ Réponse :
 }
 ```
 
-Demander un groupe générique à partir de son identifiant, et tous les médicaments qu'ils contient, avec pour chaque médicament leur dénomination et celle de leurs substances :
+Demander un groupe générique à partir de son identifiant, et son ou ses médicament(s) princeps, avec pour chaque médicament leur dénomination et celle de leurs substances :
 
 ```graphql
 {
-  groupes_generiques(ids: ["4"]) {
+  groupes_generiques(ids: ["101"]) {
     libelle
-    type
-    medicaments {
+    princeps {
       denomination
       substances {
         denomination
@@ -124,22 +123,27 @@ Réponse :
   "data": {
     "groupes_generiques": [
       {
-        "libelle": "CIMETIDINE 800 mg - TAGAMET 800 mg, comprimé pelliculé sécable",
-        "type": "princeps",
-        "medicaments": [
+        "libelle": "CAPTOPRIL 50 mg + HYDROCHLOROTHIAZIDE 25 mg - ECAZIDE, comprimé sécable - CAPTEA, comprimé sécable.",
+        "princeps": [
           {
-            "denomination": "CIMETIDINE MYLAN 800 mg, comprimé pelliculé",
+            "denomination": "ECAZIDE, comprimé sécable",
             "substances": [
               {
-                "denomination": "CIMÉTIDINE"
+                "denomination": "HYDROCHLOROTHIAZIDE"
+              },
+              {
+                "denomination": "CAPTOPRIL"
               }
             ]
           },
           {
-            "denomination": "CIMETIDINE MYLAN 400 mg, comprimé pelliculé",
+            "denomination": "CAPTEA, comprimé sécable",
             "substances": [
               {
-                "denomination": "CIMÉTIDINE"
+                "denomination": "HYDROCHLOROTHIAZIDE"
+              },
+              {
+                "denomination": "CAPTOPRIL"
               }
             ]
           }
@@ -433,6 +437,91 @@ Réponse :
             "taux_remboursement": 65,
             "prix_sans_honoraires": 12.32,
             "prix_avec_honoraires": 15.08
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Demander les médicaments princeps et génériques, associés au prix de leurs présentations, du groupe générique "AZANTAC 150 mg cp effervescent" :
+
+```graphql
+{
+  groupes_generiques(
+    libelle: {contains_all: ["azantac 150 mg", "effervescent"]}
+  ) {
+    id
+    libelle
+    princeps {
+      ...champs
+    }
+    generiques {
+      ...champs
+    }
+  }
+}
+
+fragment champs on Medicament {
+  CIS
+  presentations {
+    prix_sans_honoraires
+  }
+}
+```
+
+Réponse :
+
+```json
+{
+  "data": {
+    "groupes_generiques": [
+      {
+        "id": "10",
+        "libelle": "RANITIDINE (CHLORHYDRATE DE) équivalant à RANITIDINE 150 mg - AZANTAC 150 mg, comprimé effervescent - RANIPLEX 150 mg, comprimé effervescent.",
+        "princeps": [
+          {
+            "CIS": "61541821",
+            "presentations": [
+              {
+                "prix_sans_honoraires": 8.88
+              }
+            ]
+          }
+        ],
+        "generiques": [
+          {
+            "CIS": "60002504",
+            "presentations": [
+              {
+                "prix_sans_honoraires": 7.2
+              }
+            ]
+          },
+          {
+            "CIS": "62349845",
+            "presentations": [
+              {
+                "prix_sans_honoraires": 7.2
+              }
+            ]
+          },
+          {
+            "CIS": "61765417",
+            "presentations": [
+              {
+                "prix_sans_honoraires": 7.2
+              }
+            ]
+          },
+          {
+            "CIS": "64940633",
+            "presentations": [
+              {
+                "prix_sans_honoraires": 7.2
+              }
+            ]
           }
         ]
       }

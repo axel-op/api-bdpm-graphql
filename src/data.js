@@ -81,15 +81,6 @@ const mappings = {
         'honoraires': formatFloatNumber,
         'date_declaration_commercialisation': v => v ? strToDate(v) : v,
     },
-    [files.groupesGeneriques]: {
-        'type': n => [
-            'princeps',
-            'generique',
-            'generique_par_complementarite_posologique',
-            null,
-            'generique_substituable'
-        ][n],
-    },
 }
 
 function ouiNonToBooleans(value) {

@@ -74,15 +74,17 @@ async function buildGraph() {
 
     let groupesGeneriques = await props.groupesGeneriques;
     removeLeadingZerosOfFields(groupesGeneriques, ['CIS']);
-    groupesGeneriques = indexByIds(groupesGeneriques, ['id', 'CIS'], [true, true]);
+    groupesGeneriques = indexByIds(groupesGeneriques, ['id'], [true]);
+    groupesGeneriques['CIS'] = {};
+    const [groupesById, groupesByCIS] = [groupesGeneriques['id'], groupesGeneriques['CIS']];
 
     let medicaments = await props.medicaments;
     removeLeadingZerosOfFields(medicaments, ['CIS']);
     medicaments.forEach(m => {
-        const codeCis = m['CIS'];
-        addGetter(m, 'presentations', () => presentations['CIS'][codeCis] || []);
-        addGetter(m, 'substances', () => substances['CIS'][codeCis] || []);
-        addGetter(m, 'groupes_generiques', () => groupesGeneriques['CIS'][codeCis] || []);
+        const cis = m['CIS'];
+        addGetter(m, 'presentations', () => presentations['CIS'][cis] || []);
+        addGetter(m, 'substances', () => substances['CIS'][cis] || []);
+        addGetter(m, 'groupes_generiques', () => groupesByCIS[cis] || []);
         m['conditions_prescription'] = [];
     });
     medicaments = indexByIds(medicaments, ['CIS'])['CIS'];
@@ -94,8 +96,23 @@ async function buildGraph() {
         addGetter(s, 'medicaments', () => mapToIndex(substances['code_substance'][s['code_substance']], 'CIS', medicaments));
     });
 
-    Object.values(groupesGeneriques['CIS']).flat().forEach(g => {
-        addGetter(g, 'medicaments', () => mapToIndex(groupesGeneriques['id'][g['id']], 'CIS', medicaments));
+    Object.keys(groupesById).forEach(id => {
+        // chaque id correspond à un groupe
+        const all = groupesById[id]
+        const g = { id: id, libelle: all[0].libelle };
+        const meds = [[], [], [], null, []]; // par type
+        all.forEach(o => {
+            const cis = o['CIS'];
+            if (!groupesByCIS.hasOwnProperty(cis)) groupesByCIS[cis] = []; // regroupe tous les groupes génériques associés au médicament dans un même tableau
+            groupesByCIS[cis].push(g);
+            if (medicaments.hasOwnProperty(cis)) {
+                const type = parseInt(o['type'], 10);
+                meds[type].push(medicaments[cis]);
+            }
+        });
+        meds.splice(3, 1);
+        [g.princeps, g.generiques, g.generiques_complementarite_posologique, g.generiques_substituables] = meds;
+        groupesById[id] = g;
     });
 
     Object.values(presentations['CIS']).flat().forEach(p => {
@@ -106,7 +123,7 @@ async function buildGraph() {
         'substances': keepFirstElementOfArrayValues(substances['code_substance']),
         'medicaments': medicaments,
         'presentations': presentations,
-        'groupes_generiques': keepFirstElementOfArrayValues(groupesGeneriques['id']),
+        'groupes_generiques': groupesById,
     };
     console.timeEnd('Graph built');
     return graph;
