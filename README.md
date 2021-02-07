@@ -2,6 +2,13 @@
 
 ![Visualisation du graphe](./visualization.png)
 
+La [Base de Données Publique des Médicaments](http://base-donnees-publique.medicaments.gouv.fr), mise à disposition par l'ANSM, la HAS et l'UNCAM, est [téléchargeable sous la forme de multiples fichiers](http://base-donnees-publique.medicaments.gouv.fr/telechargement.php) contenant des données tabulaires délimitées par des tabulations. Ces fichiers présentent deux inconvénients :
+
+- ils sont reliés entre eux de façon complexe, avec des clés qui ne sont pas toujours uniques au sein d'un même fichier ;
+- les données sont parfois mal formatées, difficilement *parsables* sans pré-traitement.
+
+Cette API a pour objectif de résoudre ces problèmes en **typant** les données de la base et en permettant d'extraire toute les données nécessaires, et seulement ces données, en un **minimum de requêtes**, grâce au langage de requête [GraphQL](https://graphql.org/learn).
+
 ## Utilisation
 
 Démarrer le serveur :
