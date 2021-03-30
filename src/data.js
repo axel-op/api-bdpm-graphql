@@ -11,7 +11,7 @@ module.exports = {
     files,
 };
 
-const http = require('http');
+const https = require('https');
 const { strToDate } = require('./utils');
 
 const dbSchema = {
@@ -101,8 +101,8 @@ function formatFloatNumber(value) {
 
 function readFile(filename) {
     return new Promise((resolve, reject) => {
-        const url = new URL(`http://base-donnees-publique.medicaments.gouv.fr/telechargement.php?fichier=${filename}.txt`);
-        const req = http.request(url, res => {
+        const url = new URL(`https://base-donnees-publique.medicaments.gouv.fr/telechargement.php?fichier=${filename}.txt`);
+        const req = https.request(url, res => {
             // TODO: handle errors
             if (res.statusCode !== 200) {
                 reject('Status code != 200');
