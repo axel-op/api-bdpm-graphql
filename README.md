@@ -11,6 +11,8 @@ Cette API a pour objectif de résoudre ces problèmes en **typant** les données
 
 ## Utilisation
 
+### Localement
+
 Démarrer le serveur :
 
 ```bash
@@ -25,6 +27,10 @@ curl http://localhost:4000/graphql -H "Content-Type: application/graphql" -d "qu
 # Si la requête GraphQL est contenue dans le fichier "requete.graphql" :
 curl http://localhost:4000/graphql -H "Content-Type: application/graphql" -d @requete.graphql
 ```
+
+### En ligne
+
+L'API est hébergée en ligne sur Heroku : <https://api-bdpm-graphql.herokuapp.com/graphql>.
 
 ## Guide
 
