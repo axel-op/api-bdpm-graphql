@@ -1,0 +1,19 @@
+name: Déploiement
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déclenche l'évènement workflow_dispatch
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          repo: axel-op/heroku-deployments
+          ref: main
+          workflow: Deployment on Heroku
+          inputs: '{ "repository_name": "${{ github.repository }}", "heroku_app_name": "api-bdpm-graphql" }'
+          token: ${{ secrets.PAT_WORKFLOW_DISPATCH }}
