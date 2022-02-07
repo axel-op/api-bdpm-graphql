@@ -16,6 +16,7 @@ Cette API a pour objectif de résoudre ces problèmes en **typant** les données
 Démarrer le serveur :
 
 ```bash
+npm install
 node src/server.js
 ```
 
