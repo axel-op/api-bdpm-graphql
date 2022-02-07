@@ -9,11 +9,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Déclenche l'évènement workflow_dispatch
-        uses: benc-uk/workflow-dispatch@v1
+      - uses: actions/checkout@v2
+      - name: Utilise Node.js
+        uses: actions/setup-node@v2
         with:
-          repo: axel-op/heroku-deployments
-          ref: main
-          workflow: Deployment on Heroku
-          inputs: '{ "repository_name": "${{ github.repository }}", "heroku_app_name": "api-bdpm-graphql" }'
-          token: ${{ secrets.PAT_WORKFLOW_DISPATCH }}
+          node-version: 16.x
+      - name: Installe les dépendances
+        run: npm install
+      - name: Déploie sur Heroku
+        uses: akhileshns/heroku-deploy@79ef2ae4ff9b897010907016b268fd0f88561820
+        with:
+          heroku_app_name: "api-bdpm-graphql"
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
