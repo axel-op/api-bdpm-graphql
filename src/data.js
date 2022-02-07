@@ -124,13 +124,21 @@ async function getProperties(filename) {
     return content
         .split(/\r?\n/)
         .filter(line => line) // we ignore empty lines
+        .map(line => line.split('\t'))
         .map((line, _) => {
+            const schema = dbSchema[filename];
+            if (line.length > schema.length) {
+                line = line.filter(e => e);
+            }
             const obj = {};
-            for (let [i, p] of line.split('\t').entries()) {
-                const prop = dbSchema[filename][i];
-                const mapping = (mappings[filename] || {})[prop];
+            const mappings_ = mappings[filename] || {};
+            for (let [i, p] of line.entries()) {
+                const prop = schema[i];
+                const mapping = mappings_[prop];
                 p = p.trim() || null; // empty values are set to null
-                if (mapping) p = mapping(p);
+                if (mapping) {
+                    p = mapping(p);
+                }
                 obj[prop] = p;
             };
             return obj;
