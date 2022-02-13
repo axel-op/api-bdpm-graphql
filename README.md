@@ -47,7 +47,7 @@ query {
     denomination
     substances {
       code_substance
-      denomination
+      denominations
     }
   }
 }
@@ -64,7 +64,9 @@ Réponse :
         "substances": [
           {
             "code_substance": "4034",
-            "denomination": "FAMOTIDINE"
+            "denominations": [
+              "FAMOTIDINE"
+            ]
           }
         ]
       }
@@ -78,7 +80,7 @@ Demander une substance à partir de son code, sa dénomination, et tous les méd
 ```graphql
 query {
   substances(codes_substances: ["4034"]) {
-    denomination
+    denominations
     medicaments {
       denomination
     }
@@ -93,7 +95,9 @@ Réponse :
   "data": {
     "substances": [
       {
-        "denomination": "FAMOTIDINE",
+        "denominations": [
+          "FAMOTIDINE"
+        ],
         "medicaments": [
           {
             "denomination": "FAMOTIDINE EG 20 mg, comprimé pelliculé"
@@ -123,7 +127,7 @@ query {
     princeps {
       denomination
       substances {
-        denomination
+        denominations
       }
     }
   }
@@ -143,10 +147,14 @@ Réponse :
             "denomination": "ECAZIDE, comprimé sécable",
             "substances": [
               {
-                "denomination": "HYDROCHLOROTHIAZIDE"
+                "denominations": [
+                  "HYDROCHLOROTHIAZIDE"
+                ]
               },
               {
-                "denomination": "CAPTOPRIL"
+                "denominations": [
+                  "CAPTOPRIL"
+                ]
               }
             ]
           },
@@ -154,10 +162,14 @@ Réponse :
             "denomination": "CAPTEA, comprimé sécable",
             "substances": [
               {
-                "denomination": "HYDROCHLOROTHIAZIDE"
+                "denominations": [
+                  "HYDROCHLOROTHIAZIDE"
+                ]
               },
               {
-                "denomination": "CAPTOPRIL"
+                "denominations": [
+                  "CAPTOPRIL"
+                ]
               }
             ]
           }
@@ -179,7 +191,7 @@ query {
   }
   
   substances(limit: 3) {
-    denomination
+    denominations
   }
 }
 ```
@@ -202,13 +214,20 @@ Réponse :
     ],
     "substances": [
       {
-        "denomination": "CHLORHYDRATE DE LOPÉRAMIDE"
+        "denominations": [
+          "CHLORHYDRATE DE LOPÉRAMIDE",
+          "LOPÉRAMIDE (CHLORHYDRATE DE)"
+        ]
       },
       {
-        "denomination": "ACIDE ACÉTYLSALICYLIQUE"
+        "denominations": [
+          "SPLENINE POUR PRÉPARATIONS HOMÉOPATHIQUES"
+        ]
       },
       {
-        "denomination": "ASPARTIQUE (ACIDE)"
+        "denominations": [
+          "ACÉTAZOLAMIDE"
+        ]
       }
     ]
   }
@@ -555,7 +574,7 @@ Les requêtes peuvent être très imbriquées. Par exemple, en partant d'une sub
 ```graphql
 query {
   substances(codes_substances: ["1743"]) {
-    denomination
+    denominations
     medicaments {
       denomination
       presentations {
@@ -574,7 +593,9 @@ Réponse :
   "data": {
     "substances": [
       {
-        "denomination": "DIPYRIDAMOLE",
+        "denominations": [
+          "DIPYRIDAMOLE"
+        ],
         "medicaments": [
           {
             "denomination": "PERSANTINE 75 mg, comprimé enrobé",
