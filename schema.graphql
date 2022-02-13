@@ -121,7 +121,8 @@ type Substance {
     Identifiant de la substance.
     """
     code_substance: ID!
-    denomination: String!
+    denomination: String! @deprecated(reason: "Une substance peut avoir plusieurs dénominations. Utilisez le champ 'denominations' à la place.")
+    denominations: [String!]!
     """
     Médicaments contenant cette substance.
     """
@@ -136,7 +137,8 @@ type SubstanceConcrete {
     Identifiant de la substance.
     """
     code_substance: ID!
-    denomination: String!
+    denomination: String! @deprecated(reason: "Une substance peut avoir plusieurs dénominations. Utilisez le champ 'denominations' à la place.")
+    denominations: [String!]!
     """
     Exemples : gel, granules, comprimé...
     """

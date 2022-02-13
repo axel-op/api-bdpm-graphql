@@ -34,13 +34,6 @@ function indexByIds(objects, ids, accumulate) {
     );
 }
 
-function keepFirstElementOfArrayValues(object) {
-    return Object.keys(object).reduce((newObj, key) => {
-        newObj[key] = object[key][0];
-        return newObj;
-    }, {});
-}
-
 function mapToIndex(array, key, index) {
     let keys = array.map(o => o[key]);
     keys = Array.from(new Set(keys));
@@ -68,6 +61,10 @@ async function buildGraph() {
     let substances = await props.substances;
     removeLeadingZerosOfFields(substances, ['code_substance', 'CIS']);
     substances = indexByIds(substances, ['code_substance', 'CIS'], [true, true]);
+    Object.values(substances.code_substance).forEach(substances => {
+        const denominations = Array.from(new Set(substances.map(s => s.denomination)));
+        substances.forEach(s => s.denominations = denominations);
+    });
 
     let groupesGeneriques = await props.groupesGeneriques;
     removeLeadingZerosOfFields(groupesGeneriques, ['CIS']);
@@ -130,7 +127,9 @@ async function buildGraph() {
     });
 
     const graph = {
-        'substances': keepFirstElementOfArrayValues(substances.code_substance),
+        'substances': Object.fromEntries(Object.entries(substances.code_substance)
+            .map(([code, substances]) => [code, substances[0]])
+        ),
         'medicaments': medicaments,
         'presentations': presentations,
         'groupes_generiques': groupesGeneriquesById,
