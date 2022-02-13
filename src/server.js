@@ -6,6 +6,7 @@ const { buildSchema, GraphQLEnumType } = require('graphql');
 const { types } = require('./types.js');
 const { applyDateFilters, applyStringFilters } = require('./filters.js');
 const { removeLeadingZeros } = require('./utils.js');
+const { buildGraph } = require('./graph.js');
 
 function getValuesBySortedKey(object) {
     return Object.keys(object)
@@ -52,11 +53,11 @@ function resolve(schema, query, args, {
 
 async function main() {
 
-    // Construct a schema, using GraphQL schema language
+    // Build a schema, using GraphQL schema language
     const schema = buildSchema(fs.readFileSync(path.resolve(__dirname, '..', 'schema.graphql'), 'utf-8'));
     Object.keys(types).forEach(t => Object.assign(schema._typeMap[t], types[t]));
 
-    const graph = await require('./graph.js').buildGraph();
+    const graph = await buildGraph();
     const medicaments = graph['medicaments'];
     const presentations = Object.values(graph['presentations']);
     const substances = graph['substances'];
