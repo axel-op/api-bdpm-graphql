@@ -7,7 +7,7 @@ La [Base de Données Publique des Médicaments](http://base-donnees-publique.med
 - ils sont reliés entre eux de façon complexe, avec des clés qui ne sont pas toujours uniques au sein d'un même fichier ;
 - les données sont parfois mal formatées, difficilement *parsables* sans pré-traitement.
 
-Cette API a pour objectif de résoudre ces problèmes en **typant** les données de la base et en permettant d'extraire toute les données nécessaires, et seulement ces données, en un **minimum de requêtes**, grâce au langage de requête [GraphQL](https://graphql.org/learn).
+Cette API a pour objectif de résoudre ces problèmes en **typant** les données de la base et en permettant d'extraire toutes les données nécessaires, et seulement ces données, en un **minimum de requêtes**, grâce au langage de requête [GraphQL](https://graphql.org/learn).
 
 ## Utilisation
 
