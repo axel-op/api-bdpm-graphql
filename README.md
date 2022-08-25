@@ -31,7 +31,7 @@ curl http://localhost:4000/graphql -H "Content-Type: application/graphql" -d @re
 
 ### En ligne
 
-L'API est hébergée en ligne sur Heroku : <https://api-bdpm-graphql.herokuapp.com/graphql>.
+L'API est hébergée en ligne : <https://api-bdpm-graphql.axel-op.fr/graphql>.
 
 ## Guide
 
