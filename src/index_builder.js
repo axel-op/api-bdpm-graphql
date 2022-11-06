@@ -3,6 +3,7 @@ module.exports = {
 }
 
 const data = require('./file_parser.js');
+const { downloadFile } = require('./bdpm_client');
 const { removeLeadingZeros } = require('./utils.js');
 
 /**
@@ -52,7 +53,11 @@ async function buildGraph() {
     console.log('Building graph...');
     console.time('Graph built');
     const props = data.files;
-    Object.keys(props).forEach(k => props[k] = data.getProperties(props[k]));
+    Object.keys(props).forEach(k => {
+        const fileName = props[k];
+        props[k] = downloadFile(props[k])
+            .then(content => data.getProperties(fileName, content))
+    });
 
     let presentations = await props.presentations;
     removeLeadingZerosOfFields(presentations, ['CIS']);

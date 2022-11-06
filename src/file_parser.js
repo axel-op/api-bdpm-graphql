@@ -11,7 +11,6 @@ module.exports = {
     files,
 };
 
-const https = require('https');
 const { strToDate } = require('./utils');
 
 const dbSchema = {
@@ -99,28 +98,7 @@ function formatFloatNumber(value) {
     return value;
 }
 
-function readFile(filename) {
-    return new Promise((resolve, reject) => {
-        const url = new URL(`https://base-donnees-publique.medicaments.gouv.fr/telechargement.php?fichier=${filename}.txt`);
-        const req = https.request(url, res => {
-            // TODO: handle errors
-            if (res.statusCode !== 200) {
-                reject('Status code != 200');
-                res.resume();
-                return;
-            }
-            res.setEncoding('latin1');
-            let data = '';
-            res.on('data', d => { data += d; });
-            res.on('end', () => resolve(data));
-        })
-        req.on('error', e => reject(e));
-        req.end();
-    });
-};
-
-async function getProperties(filename) {
-    const content = await readFile(filename);
+async function getProperties(filename, content) {
     return content
         .split(/\r?\n/)
         .filter(line => line) // we ignore empty lines
