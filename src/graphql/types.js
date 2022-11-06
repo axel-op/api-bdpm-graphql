@@ -1,5 +1,5 @@
 const { Kind } = require("graphql");
-const { dateToStr, strToDate } = require("./utils");
+const { dateToStr, strToDate } = require("../utils");
 
 const types = {
     Date: {

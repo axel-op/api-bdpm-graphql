@@ -2,7 +2,7 @@ module.exports = {
     buildGraph
 }
 
-const data = require('./data.js');
+const data = require('./file_parser.js');
 const { removeLeadingZeros } = require('./utils.js');
 
 /**

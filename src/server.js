@@ -3,10 +3,10 @@ const path = require('path')
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema, GraphQLEnumType } = require('graphql');
-const { types } = require('./types.js');
-const { applyDateFilters, applyStringFilters } = require('./filters.js');
+const { types } = require('./graphql/types.js');
+const { applyDateFilters, applyStringFilters } = require('./graphql/filters.js');
 const { removeLeadingZeros } = require('./utils.js');
-const { buildGraph } = require('./graph.js');
+const { buildGraph } = require('./index_builder.js');
 
 function getValuesBySortedKey(object) {
     return Object.keys(object)
