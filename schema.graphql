@@ -152,7 +152,7 @@ type SubstanceConcrete {
     """
     reference_dosage: String
     """
-    `SA` pour principe actif, `ST` pour fraction thérapeutique.
+    `SA` pour principe actif, `FT` pour fraction thérapeutique.
     """
     nature_composant: NatureComposant!
     """
@@ -178,7 +178,11 @@ enum NatureComposant {
     """
     Fraction thérapeutique
     """
-    ST
+    FT
+    """
+    Fraction thérapeutique
+    """
+    ST @deprecated
 }
 
 input DateFilter {
