@@ -99,15 +99,14 @@ function formatFloatNumber(value) {
 }
 
 async function getProperties(filename, content) {
+    const schema = dbSchema[filename];
     return content
         .split(/\r?\n/)
-        .filter(line => line) // we ignore empty lines
+        .map(line => line.trimEnd()) // il y a des tabulations en trop à la fin
+        .filter(line => line) // ignorer les lignes vides
         .map(line => line.split('\t'))
+        .filter(line => line.length <= schema.length) // ignorer les lignes mal formatées
         .map((line, _) => {
-            const schema = dbSchema[filename];
-            if (line.length > schema.length) {
-                line = line.filter(e => e);
-            }
             const obj = {};
             const mappings_ = mappings[filename] || {};
             for (let [i, p] of line.entries()) {
