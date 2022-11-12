@@ -2,37 +2,39 @@ module.exports = {
     buildGraph
 }
 
-const data = require('./file_parser.js');
-const { downloadFile } = require('./bdpm_client');
-const { removeLeadingZeros } = require('./utils.js');
+const { Parser } = require('./bdpm_file_parser.js');
+const { files } = require('./bdpm_files');
+const { downloadHttpFile } = require('./bdpm_client');
 
-/**
- * @param {Array} objects 
- * @param {Array<String>} ids 
- * @param {Array<Boolean>} accumulate 
- * @returns {{ [k: String]: Array }}
- */
-function indexByIds(objects, ids, accumulate) {
-    return objects.reduce(
-        (indexes, o) => {
-            for (let i = 0; i < ids.length; i++) {
-                const id = ids[i];
-                const index = indexes[id];
-                const acc = accumulate && accumulate[i];
-                const value = o[id];
-                const existing = index[value];
-                if (existing !== undefined && !acc) {
-                    throw new Error(`Duplicate key in ${id}: ${value}`);
-                } else if (existing) {
-                    existing.push(o);
-                } else {
-                    index[value] = acc ? [o] : o;
-                }
+class IndexKey {
+    constructor(value, unique) {
+        this.value = value;
+        this.unique = unique;
+    }
+}
+
+class Index {
+    constructor(...keys) {
+        this._keys = keys;
+        for (const key of keys) {
+            this[key.value] = {};
+        }
+    }
+
+    addObject(obj) {
+        for (const key of this._keys) {
+            const id = obj[key.value];
+            const index = this[key.value];
+            const existing = index[id];
+            if (existing && key.unique) {
+                throw new Error(`Duplicate key in ${key.value}: ${id}`);
+            } else if (existing) {
+                existing.push(obj);
+            } else {
+                index[id] = key.unique ? obj : [obj];
             }
-            return indexes;
-        },
-        Object.fromEntries(ids.map(id => [id, {}])),
-    );
+        }
+    }
 }
 
 function mapToIndex(array, key, index) {
@@ -45,65 +47,98 @@ function addGetter(object, field, getter) {
     Object.defineProperty(object, field, { get: getter });
 }
 
-function removeLeadingZerosOfFields(objects, fields) {
-    objects.forEach(o => fields.forEach(f => o[f] = removeLeadingZeros(o[f])));
+async function processStream(streamPromise, fn, filename) {
+    const stream = await streamPromise;
+    const parser = new Parser(filename);
+    const timer = `Processed ${filename}`;
+    console.time(timer);
+    for await (const line of stream) {
+        if (!parser.isValidLine(line)) continue;
+        fn(parser.parseLine(line));
+    }
+    console.timeEnd(timer);
+}
+
+async function processStreams(streamPromises, fns) {
+    const promises = [];
+    for (const key of Object.keys(fns)) {
+        const filename = files[key];
+        const fn = fns[key];
+        const promise = processStream(streamPromises[key], fn, filename);
+        promises.push(promise);
+    }
+    return Promise.all(promises);
 }
 
 async function buildGraph() {
     console.log('Building graph...');
     console.time('Graph built');
-    const props = data.files;
-    Object.keys(props).forEach(k => {
-        const fileName = props[k];
-        props[k] = downloadFile(props[k])
-            .then(content => data.getProperties(fileName, content))
+
+    const streams = Object.fromEntries(
+        Object.entries(files).map(([key, filename]) => [key, downloadHttpFile(filename)])
+    );
+
+    const indexes = {
+        presentations: new Index(
+            new IndexKey('CIP7', true),
+            new IndexKey('CIP13', true),
+            new IndexKey('CIS', false),
+        ),
+        substances: new Index(
+            new IndexKey('code_substance', false),
+            new IndexKey('CIS', false),
+        ),
+        groupesGeneriques: new Index(
+            new IndexKey('id', false),
+        ),
+        medicaments: new Index(
+            new IndexKey('CIS', true),
+        ),
+        conditions: new Index(
+            new IndexKey('CIS', false),
+        ),
+    }
+
+    await processStreams(streams, {
+        groupesGeneriques: indexes.groupesGeneriques.addObject.bind(indexes.groupesGeneriques),
+        conditions: indexes.conditions.addObject.bind(indexes.conditions),
+        substances: s => {
+            indexes.substances.addObject(s);
+            addGetter(s, 'medicament', () => indexes.medicaments.CIS[s.CIS]);
+            addGetter(s, 'medicaments', () => mapToIndex(
+                indexes.substances.code_substance[s.code_substance],
+                'CIS',
+                indexes.medicaments.CIS
+            ));
+        },
+        presentations: p => {
+            indexes.presentations.addObject(p);
+            addGetter(p, 'medicament', () => indexes.medicaments.CIS[p.CIS]);
+        },
+        medicaments: m => {
+            indexes.medicaments.addObject(m);
+            const cis = m.CIS;
+            addGetter(m, 'presentations', () => indexes.presentations.CIS[cis] || []);
+            addGetter(m, 'substances', () => indexes.substances.CIS[cis] || []);
+            addGetter(m, 'groupes_generiques', () => indexes.groupesGeneriques.CIS[cis] || []);
+            addGetter(m, 'conditions_prescription',
+                () => (indexes.conditions.CIS[cis] || [])
+                    .map(o => o.conditions_prescription)
+                    .filter(c => c)
+            );
+        },
     });
 
-    let presentations = await props.presentations;
-    removeLeadingZerosOfFields(presentations, ['CIS']);
-    presentations = indexByIds(presentations, ['CIP7', 'CIP13', 'CIS'], [false, false, true]);
-
-    let substances = await props.substances;
-    removeLeadingZerosOfFields(substances, ['code_substance', 'CIS']);
-    substances = indexByIds(substances, ['code_substance', 'CIS'], [true, true]);
-    Object.values(substances.code_substance).forEach(substances => {
+    Object.values(indexes.substances.code_substance).forEach(substances => {
         const denominations = Array.from(new Set(substances.map(s => s.denomination)));
         substances.forEach(s => s.denominations = denominations);
     });
 
-    let groupesGeneriques = await props.groupesGeneriques;
-    removeLeadingZerosOfFields(groupesGeneriques, ['CIS']);
-    groupesGeneriques = indexByIds(groupesGeneriques, ['id'], [true]);
-    groupesGeneriques.CIS = {};
+    indexes.groupesGeneriques.CIS = {};
     const [
         groupesGeneriquesById,
         groupesGeneriquesByCIS,
-    ] = [groupesGeneriques.id, groupesGeneriques.CIS];
-
-    let medicaments = await props.medicaments;
-    removeLeadingZerosOfFields(medicaments, ['CIS']);
-    medicaments.forEach(m => {
-        const cis = m['CIS'];
-        addGetter(m, 'presentations', () => presentations.CIS[cis] || []);
-        addGetter(m, 'substances', () => substances.CIS[cis] || []);
-        addGetter(m, 'groupes_generiques', () => groupesGeneriquesByCIS[cis] || []);
-        m.conditions_prescription = [];
-    });
-    medicaments = indexByIds(medicaments, ['CIS']).CIS;
-
-    const conditionsPrescription = await props.conditions;
-    conditionsPrescription.forEach(o => {
-        const medicament = medicaments[o.CIS];
-        if (medicament) {
-            medicament.conditions_prescription.push(o.conditions_prescription);
-        }
-    })
-
-    Object.values(substances.CIS).flat().forEach(s => {
-        addGetter(s, 'substance', () => s);
-        addGetter(s, 'medicament', () => medicaments[s.CIS]);
-        addGetter(s, 'medicaments', () => mapToIndex(substances.code_substance[s.code_substance], 'CIS', medicaments));
-    });
+    ] = [indexes.groupesGeneriques.id, indexes.groupesGeneriques.CIS];
 
     Object.keys(groupesGeneriquesById).forEach(id => {
         // chaque id correspond à un groupe
@@ -112,14 +147,15 @@ async function buildGraph() {
         const meds = [[], [], [], null, []]; // par type
         all.forEach(o => {
             const cis = o.CIS;
-            if (!groupesGeneriquesByCIS.hasOwnProperty(cis)) {
+            if (!groupesGeneriquesByCIS[cis]) {
                 // regroupe tous les groupes génériques associés au médicament dans un même tableau
                 groupesGeneriquesByCIS[cis] = [];
             }
             groupesGeneriquesByCIS[cis].push(g);
-            if (medicaments.hasOwnProperty(cis)) {
+            const medicament = indexes.medicaments.CIS[cis];
+            if (medicament) {
                 const type = parseInt(o.type, 10);
-                meds[type].push(medicaments[cis]);
+                meds[type].push(medicament);
             }
         });
         meds.splice(3, 1);
@@ -127,18 +163,16 @@ async function buildGraph() {
         groupesGeneriquesById[id] = g;
     });
 
-    Object.values(presentations['CIS']).flat().forEach(p => {
-        addGetter(p, 'medicament', () => medicaments[p.CIS]);
-    });
-
     const graph = {
-        'substances': Object.fromEntries(Object.entries(substances.code_substance)
+        'substances': Object.fromEntries(Object.entries(indexes.substances.code_substance)
             .map(([code, substances]) => [code, substances[0]])
         ),
-        'medicaments': medicaments,
-        'presentations': presentations,
+        'medicaments': indexes.medicaments.CIS,
+        'presentations': indexes.presentations,
         'groupes_generiques': groupesGeneriquesById,
     };
+
     console.timeEnd('Graph built');
     return graph;
+
 }

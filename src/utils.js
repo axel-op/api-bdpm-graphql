@@ -32,6 +32,7 @@ function dateToStr(date) {
 }
 
 function removeLeadingZeros(str) {
+    if (!str) return str;
     const replaced = str.replace(/^[0]+/g, "");
     if (replaced.length === 0) throw new Error(`Incorrect string: ${str}`);
     return replaced;
