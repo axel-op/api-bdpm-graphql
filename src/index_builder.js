@@ -52,8 +52,13 @@ async function processStream(streamPromise, fn, filename) {
     const parser = new Parser(filename);
     const timer = `Processed ${filename}`;
     console.time(timer);
+    let i = -1;
     for await (const line of stream) {
-        if (!parser.isValidLine(line)) continue;
+        i += 1;
+        if (!parser.isValidLine(line)) {
+            console.log(`${filename}: line ${i} ignored:\n\t"${line}"`)
+            continue;
+        }
         fn(parser.parseLine(line));
     }
     console.timeEnd(timer);
