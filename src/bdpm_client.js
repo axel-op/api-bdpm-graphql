@@ -2,8 +2,8 @@ module.exports = {
     downloadHttpFile,
 }
 
-const axios = require('axios');
 const readline = require('readline');
+const { Readable } = require('stream');
 
 async function downloadHttpFile(filename, {
     protocol = "https:",
@@ -11,8 +11,7 @@ async function downloadHttpFile(filename, {
     path = process.env.BDPM_URL_PATH || "/telechargement.php"
 } = {}) {
     const url = `${protocol}//${host}${path}?fichier=${filename}.txt`;
-    const response = await axios.get(url, { responseType: 'stream' });
-    const stream = response.data;
-    stream.setEncoding('latin1');
-    return readline.createInterface({ input: stream });
+    const response = await fetch(url);
+    const stream = response.body.pipeThrough(new TextDecoderStream("latin1"));
+    return readline.createInterface({ input: Readable.fromWeb(stream) });
 };
