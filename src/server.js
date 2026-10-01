@@ -94,4 +94,7 @@ async function main() {
     console.log(`Running a GraphQL API server at http://localhost:${port}/graphql`);
 }
 
-main();
+main().catch(error => {
+    console.error('Failed to start the GraphQL API:', error);
+    process.exitCode = 1;
+});

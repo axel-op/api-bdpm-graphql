@@ -7,28 +7,32 @@ const https = require('https');
 function downloadFile(filename, {
     protocol = "https:",
     host = process.env.BDPM_URL_HOST || "base-donnees-publique.medicaments.gouv.fr",
-    path = process.env.BDPM_URL_PATH || "/telechargement.php"
+    path = process.env.BDPM_URL_PATH || "/download/file/"
 } = {}) {
+    const timer = `Downloaded ${filename}`;
+    console.time(timer);
     return new Promise((resolve, reject) => {
-        const url = new URL(`${protocol}//${host}${path}?fichier=${filename}.txt`);
-        const timer = `Downloaded ${filename}`;
-        console.time(timer);
+        // Keep support for mirrors using the former PHP download endpoint.
+        const file = `${encodeURIComponent(filename)}.txt`;
+        const downloadPath = path.endsWith('.php')
+            ? `${path}?fichier=${file}`
+            : `${path.replace(/\/$/, '')}/${file}`;
+        const url = new URL(`${protocol}//${host}${downloadPath}`);
         const req = https.request(url, res => {
-            // TODO: handle errors
             if (res.statusCode !== 200) {
-                reject(`Error downloading ${filename}: ${res.statusCode} ${res.statusMessage}`);
+                reject(new Error(`Error downloading ${filename} (${url}): ${res.statusCode} ${res.statusMessage}`));
                 res.resume();
                 return;
             }
             res.setEncoding('latin1');
+            res.on('error', reject);
             let data = '';
             res.on('data', d => { data += d; });
             res.on('end', () => {
-                console.timeEnd(timer);
                 resolve(data);
             });
         })
         req.on('error', e => reject(e));
         req.end();
-    });
+    }).finally(() => console.timeEnd(timer));
 };

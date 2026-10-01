@@ -2,7 +2,7 @@
 
 ![Visualisation du graphe](./visualization.png)
 
-La [Base de Données Publique des Médicaments](http://base-donnees-publique.medicaments.gouv.fr), mise à disposition par l'ANSM, la HAS et l'UNCAM, est [téléchargeable sous la forme de multiples fichiers](http://base-donnees-publique.medicaments.gouv.fr/telechargement.php) contenant des données tabulaires délimitées par des tabulations. Ces fichiers présentent deux inconvénients :
+La [Base de Données Publique des Médicaments](https://base-donnees-publique.medicaments.gouv.fr), mise à disposition par l'ANSM, la HAS et l'UNCAM, est [téléchargeable sous la forme de multiples fichiers](https://base-donnees-publique.medicaments.gouv.fr/telechargement) contenant des données tabulaires délimitées par des tabulations. Ces fichiers présentent deux inconvénients :
 
 - ils sont reliés entre eux de façon complexe, avec des clés qui ne sont pas toujours uniques au sein d'un même fichier ;
 - les données sont parfois mal formatées, difficilement *parsables* sans pré-traitement.
@@ -19,6 +19,8 @@ Démarrer le serveur :
 npm install
 node src/server.js
 ```
+
+Au démarrage, l'API télécharge les fichiers depuis `https://base-donnees-publique.medicaments.gouv.fr/download/file/`. Les variables `BDPM_URL_HOST` et `BDPM_URL_PATH` permettent de configurer un miroir (le chemin doit désigner le répertoire des fichiers).
 
 Une fois le serveur démarré, les requêtes (HTTP POST) peuvent être envoyées à [`localhost:4000/graphql`](http://localhost:4000/graphql) (accéder à cette adresse depuis un navigateur affichera une interface graphique).
 

@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "test": "npx mocha test/graph.test.js",
+    "test": "mocha 'test/**/*.test.js'",
     "start": "node src/server.js"
   },
   "repository": {
@@ -17,6 +17,9 @@
     "url": "https://github.com/axel-op/api-bdpm-graphql/issues"
   },
   "homepage": "https://github.com/axel-op/api-bdpm-graphql#readme",
+  "devDependencies": {
+    "mocha": "^12.0.3"
+  },
   "dependencies": {
     "express": "^4.17.1",
     "express-graphql": "^0.11.0",

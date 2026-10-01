@@ -52,12 +52,11 @@ function removeLeadingZerosOfFields(objects, fields) {
 async function buildGraph() {
     console.log('Building graph...');
     console.time('Graph built');
-    const props = data.files;
-    Object.keys(props).forEach(k => {
-        const fileName = props[k];
-        props[k] = downloadFile(props[k])
-            .then(content => data.getProperties(fileName, content))
-    });
+    const entries = await Promise.all(Object.entries(data.files).map(async ([key, fileName]) => {
+        const content = await downloadFile(fileName);
+        return [key, await data.getProperties(fileName, content)];
+    }));
+    const props = Object.fromEntries(entries);
 
     let presentations = await props.presentations;
     removeLeadingZerosOfFields(presentations, ['CIS']);
