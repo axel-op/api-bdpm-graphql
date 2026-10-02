@@ -26,7 +26,7 @@ describe('BDPM downloads', function() {
 
     function respond(statusCode, body = '') {
         let requestedUrl;
-        https.request = (url, callback) => {
+        https.request = (url, options, callback) => {
             requestedUrl = url;
             const request = new EventEmitter();
             request.end = () => process.nextTick(() => {
@@ -68,7 +68,7 @@ describe('BDPM downloads', function() {
     });
 
     it('rejects an interrupted response', async function() {
-        https.request = (url, callback) => {
+        https.request = (url, options, callback) => {
             const request = new EventEmitter();
             request.end = () => process.nextTick(() => {
                 const response = new EventEmitter();

@@ -3,6 +3,7 @@ module.exports = {
 }
 
 const https = require('https');
+const { getSignedCookie } = require('./cloudfront_auth');
 
 function downloadFile(filename, {
     protocol = "https:",
@@ -18,7 +19,9 @@ function downloadFile(filename, {
             ? `${path}?fichier=${file}`
             : `${path.replace(/\/$/, '')}/${file}`;
         const url = new URL(`${protocol}//${host}${downloadPath}`);
-        const req = https.request(url, res => {
+        const cookie = getSignedCookie(url);
+        const options = cookie ? { headers: { Cookie: cookie } } : {};
+        const req = https.request(url, options, res => {
             if (res.statusCode !== 200) {
                 reject(new Error(`Error downloading ${filename} (${url}): ${res.statusCode} ${res.statusMessage}`));
                 res.resume();
